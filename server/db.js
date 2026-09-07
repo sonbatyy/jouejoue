@@ -11,6 +11,14 @@ db.pragma("journal_mode = WAL");
 const schema = fs.readFileSync(path.join(__dirname, "schema.sql"), "utf8");
 db.exec(schema);
 
+// Migration: CREATE TABLE IF NOT EXISTS above doesn't touch a table that
+// already exists, so a column added to schema.sql after the table was first
+// created needs to be added explicitly too.
+const instanceColumns = db.prepare("PRAGMA table_info(game_instances)").all().map((c) => c.name);
+if (!instanceColumns.includes("recipient_name")) {
+  db.exec("ALTER TABLE game_instances ADD COLUMN recipient_name TEXT NOT NULL DEFAULT ''");
+}
+
 // Idempotent per-slug seeding (not "only if the table is empty") so adding a
 // new game template later doesn't require wiping existing instances/orders
 // tied to the templates already there.

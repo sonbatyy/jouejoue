@@ -24,16 +24,16 @@ window.GameLib = (function () {
     return { x: e.clientX, y: e.clientY };
   }
 
-  // Builds the "you caught it" modal. The question text is set via
-  // textContent (never innerHTML) since it's untrusted buyer-supplied input
-  // rendered to a different visitor (the recipient) — this avoids any HTML/
-  // script injection through a crafted question.
-  function createSuccessModal({ question, onSubmit }) {
+  // Builds the "you caught it" modal. The question text and recipient name
+  // are set via textContent (never innerHTML) since they're untrusted
+  // buyer-supplied input rendered to a different visitor (the recipient) —
+  // this avoids any HTML/script injection through a crafted value.
+  function createSuccessModal({ question, name, onSubmit }) {
     const overlay = document.createElement("div");
     overlay.className = "overlay";
     overlay.innerHTML = `
       <div class="modal-box">
-        <h2>Bravo</h2>
+        <h2 class="modal-heading"></h2>
         <p class="modal-question"></p>
         <form class="answer-form">
           <input type="text" placeholder="Type your answer..." autocomplete="off" required />
@@ -44,6 +44,7 @@ window.GameLib = (function () {
         </div>
       </div>
     `;
+    overlay.querySelector(".modal-heading").textContent = name ? `Bravo ${name}` : "Bravo";
     overlay.querySelector(".modal-question").textContent = question;
     document.body.appendChild(overlay);
 

@@ -31,16 +31,16 @@
           <input type="text" id="cardName" name="cardName" placeholder="Jane Doe" />
 
           <label for="cardNumber">Card number</label>
-          <input type="text" id="cardNumber" name="cardNumber" placeholder="4242 4242 4242 4242" inputmode="numeric" />
+          <input type="text" id="cardNumber" name="cardNumber" placeholder="4242 4242 4242 4242" inputmode="numeric" maxlength="19" />
 
           <div class="form-row">
             <div>
               <label for="cardExpiry">Expiry</label>
-              <input type="text" id="cardExpiry" name="cardExpiry" placeholder="MM / YY" />
+              <input type="text" id="cardExpiry" name="cardExpiry" placeholder="MM / YY" inputmode="numeric" maxlength="5" />
             </div>
             <div>
               <label for="cardCvc">CVC</label>
-              <input type="text" id="cardCvc" name="cardCvc" placeholder="123" inputmode="numeric" />
+              <input type="text" id="cardCvc" name="cardCvc" placeholder="123" inputmode="numeric" maxlength="4" />
             </div>
           </div>
 
@@ -52,5 +52,7 @@
 
     <%- include('layout-partials/footer') %>
   </div>
+
+  <script src="/js/card-input.js"></script>
 </body>
 </html>

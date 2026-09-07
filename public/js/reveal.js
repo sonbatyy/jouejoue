@@ -9,13 +9,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const targets = document.querySelectorAll("[data-reveal], [data-reveal-stagger]");
   if (!targets.length || !("IntersectionObserver" in window)) return;
 
+  // threshold is a fraction of the TARGET's own height, not the viewport's —
+  // a section taller than the screen (the 4-step grid, the catalog on a
+  // phone) could sit on screen forever without ever clearing 0.15, staying
+  // invisible for good. threshold: 0 fires as soon as a single pixel is
+  // on screen, which is what "reveal as it scrolls into view" actually means.
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         entry.target.classList.toggle("is-visible", entry.isIntersecting);
       });
     },
-    { threshold: 0.15, rootMargin: "0px 0px -60px 0px" }
+    { threshold: 0, rootMargin: "0px 0px -10% 0px" }
   );
 
   targets.forEach((el, i) => {

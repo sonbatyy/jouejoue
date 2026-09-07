@@ -37,21 +37,23 @@ router.get("/buy/:templateId", async (req, res) => {
 router.post("/api/instances", (req, res) => {
   const templateId = Number(req.body.templateId);
   const buyerEmail = String(req.body.buyerEmail || "").trim();
+  const recipientName = String(req.body.recipientName || "").trim();
   const question = String(req.body.question || "").trim();
 
   const template = db
     .prepare("SELECT * FROM game_templates WHERE id = ? AND is_custom_tier = 0")
     .get(templateId);
   if (!template) return res.status(400).send("Unknown game.");
+  if (!recipientName) return res.status(400).send("Please enter their name.");
   if (!EMAIL_RE.test(buyerEmail)) return res.status(400).send("Please enter a valid email.");
   if (!question) return res.status(400).send("Please write a question.");
 
   const token = generateToken();
   const now = Date.now();
   db.prepare(`
-    INSERT INTO game_instances (template_id, token, buyer_email, question, status, created_at, expires_at)
-    VALUES (?, ?, ?, ?, 'pending', ?, ?)
-  `).run(template.id, token, buyerEmail, question, now, computeExpiry(now));
+    INSERT INTO game_instances (template_id, token, buyer_email, recipient_name, question, status, created_at, expires_at)
+    VALUES (?, ?, ?, ?, ?, 'pending', ?, ?)
+  `).run(template.id, token, buyerEmail, recipientName, question, now, computeExpiry(now));
 
   res.redirect(`/confirmation/${token}`);
 });

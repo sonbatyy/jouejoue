@@ -1,5 +1,5 @@
 (function () {
-  const { token, templateSlug, question } = window.__PLAY__;
+  const { token, templateSlug, question, recipientName } = window.__PLAY__;
   const containerEl = document.querySelector(".play-shell");
 
   function submitAnswer(answer, { onSuccess, onError }) {
@@ -16,7 +16,7 @@
   }
 
   function onWin() {
-    window.GameLib.createSuccessModal({ question, onSubmit: submitAnswer });
+    window.GameLib.createSuccessModal({ question, name: recipientName, onSubmit: submitAnswer });
   }
 
   // Every game module shares the same { containerEl, onWin } contract.

@@ -37,6 +37,7 @@ router.get("/play/:token", async (req, res) => {
       token: instance.token,
       templateSlug: template.slug,
       question: instance.question,
+      recipientName: instance.recipient_name,
     },
   });
 });
@@ -62,6 +63,7 @@ router.post("/api/play/:token/answer", (req, res) => {
   sendAnswerNotification({
     buyerEmail: instance.buyer_email,
     templateName: template.name,
+    recipientName: instance.recipient_name,
     question: instance.question,
     answer,
     instanceToken: instance.token,

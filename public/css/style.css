@@ -219,9 +219,6 @@ html.js [data-reveal-stagger].is-visible > * {
   .step:hover .step__marker {
     transform: none;
   }
-  .ingredient-tile:hover {
-    transform: none;
-  }
 }
 
 /* ============================================================
@@ -303,6 +300,94 @@ html.js [data-reveal-stagger].is-visible > * {
   transform: scaleX(1);
 }
 
+/* Hamburger toggle — hidden on wide screens, where the links show inline. */
+.site-nav__toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.site-nav__toggle-bar {
+  display: block;
+  width: 20px;
+  height: 2px;
+  margin-inline: auto;
+  border-radius: 999px;
+  background: var(--color-ink);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.site-nav__toggle.is-open .site-nav__toggle-bar:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.site-nav__toggle.is-open .site-nav__toggle-bar:nth-child(2) {
+  opacity: 0;
+}
+.site-nav__toggle.is-open .site-nav__toggle-bar:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+@media (max-width: 719px) {
+  .site-nav__toggle {
+    display: flex;
+  }
+  .site-nav__links {
+    position: absolute;
+    inset-inline: 0;
+    top: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 0 0 16px 16px;
+    box-shadow: var(--shadow-pop);
+    padding: 8px 24px 16px;
+    z-index: 20;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.25s ease, opacity 0.2s ease;
+  }
+  .site-nav__links.is-open {
+    max-height: 320px;
+    opacity: 1;
+  }
+  .site-nav__links li {
+    border-bottom: 1px solid var(--color-border);
+  }
+  .site-nav__links li:last-child {
+    border-bottom: none;
+  }
+  .nav-underline {
+    display: block;
+    padding: 14px 4px;
+    font-size: 16px;
+  }
+  .nav-underline::after {
+    display: none;
+  }
+  .site-nav {
+    position: relative;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-nav__links {
+    transition: none;
+  }
+  .site-nav__toggle-bar {
+    transition: none;
+  }
+}
+
 /* ============================================================
    Buttons
    ============================================================ */
@@ -361,6 +446,57 @@ html.js [data-reveal-stagger].is-visible > * {
   justify-content: center;
   margin-top: 18px;
   flex-wrap: wrap;
+}
+
+/* A scattered row of stickers pulled from the actual minigames — a small,
+   playful, on-brand graphic touch (not stock icons) so the hero reads as
+   "games" at a glance, especially on a phone where there's no room for a
+   big illustration. */
+.hero__stickers {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.hero__sticker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+  font-size: 24px;
+  animation: sticker-bob 3.2s ease-in-out infinite;
+}
+.hero__sticker--1 { transform: rotate(-8deg); background: var(--color-accent-soft); animation-delay: 0s; }
+.hero__sticker--2 { transform: rotate(6deg); background: var(--color-tone-brown-soft); animation-delay: 0.3s; }
+.hero__sticker--3 { transform: rotate(-4deg); background: var(--color-blush); animation-delay: 0.6s; }
+.hero__sticker--4 { transform: rotate(9deg); background: var(--color-ink-soft-bg); animation-delay: 0.9s; }
+
+@keyframes sticker-bob {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -6px; }
+}
+
+@media (max-width: 480px) {
+  .hero__sticker {
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+    border-radius: 13px;
+  }
+  .hero__stickers {
+    gap: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__sticker {
+    animation: none;
+  }
 }
 
 /* ============================================================
@@ -773,63 +909,36 @@ textarea {
 }
 
 /* ============================================================
-   Cook the Dish
+   Cook the Dish — catch the falling target, one shot
    ============================================================ */
-.recipe-strip {
+.cooking-target-badge {
   position: absolute;
-  top: 70px;
+  top: 64px;
   left: 50%;
   transform: translateX(-50%);
-  display: flex;
-  gap: 12px;
-  z-index: 5;
-}
-.recipe-slot {
-  width: 48px;
-  height: 48px;
+  z-index: 6;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--color-ink);
+  background: rgba(255, 255, 255, 0.75);
+  padding: 8px 16px;
+  border-radius: 20px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 8px;
+}
+.cooking-target-emoji {
   font-size: 26px;
-  border-radius: 12px;
-  background: var(--color-surface);
-  border: 2px solid var(--color-border);
-  opacity: 0.55;
+  line-height: 1;
 }
-.recipe-slot.current {
-  border-color: var(--color-accent);
-  opacity: 1;
-}
-.recipe-slot.done {
-  border-color: var(--color-tone-brown);
-  background: var(--color-tone-brown-soft);
-  opacity: 1;
-}
-.ingredient-board {
+.falling-item {
   position: absolute;
-  top: 150px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 28px;
-  flex-wrap: wrap;
-  justify-content: center;
-  max-width: 80%;
-}
-.ingredient-tile {
-  font-size: 48px;
+  font-size: 46px;
   line-height: 1;
   cursor: pointer;
   user-select: none;
-  transition: transform 0.2s ease, opacity 0.3s ease;
   filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.2));
-}
-.ingredient-tile:hover {
-  transform: scale(1.08);
-}
-.ingredient-tile.used {
-  opacity: 0.2;
-  pointer-events: none;
+  z-index: 4;
 }
 
 /* ============================================================

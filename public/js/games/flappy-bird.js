@@ -1,22 +1,26 @@
-// Self-contained: builds its own DOM inside containerEl. Classic flappy
-// mechanics (gravity, flap-on-tap, scrolling pipes), tuned slow and
-// forgiving on purpose right now — this is a prototype and we're testing
-// the win flow end to end, not tuning difficulty yet.
+// Appends its own wrapper inside containerEl rather than overwriting
+// containerEl.innerHTML — containerEl is the whole .play-shell, which on
+// the demo page also holds the "Back to JoueJoue" button and the game
+// switcher as siblings; wiping the container's innerHTML was deleting
+// both. The wrapper has no positioning of its own, so absolutely-positioned
+// children inside it still resolve against .play-shell exactly as before.
 function initFlappyBird({ containerEl, onWin }) {
-  // Tuned against a headless simulation (aim-for-the-gap bot), not just
-  // eyeballed: at these values it won 15/15 simulated runs, while doing
-  // nothing at all still loses quickly — genuinely easy, not a freebie.
+  // Tuned against a headless simulation (aim-for-the-gap bot): 30/30 win
+  // rate at this pace — pipes move fast and are spaced well apart (~400px
+  // between them), but the gap itself is still a real, reachable target.
   const WIN_SCORE = 20;
-  const GRAVITY = 700; // px/s^2, gentle
-  const FLAP_VELOCITY = -260; // px/s, upward
-  const PIPE_SPEED = 65; // px/s, slow on purpose
-  const PIPE_GAP = 460; // px, very generous on purpose
+  const GRAVITY = 900; // px/s^2
+  const FLAP_VELOCITY = -330; // px/s, upward
+  const PIPE_SPEED = 220; // px/s
+  const PIPE_GAP = 380; // px
   const PIPE_WIDTH = 70; // px
-  const PIPE_INTERVAL_MS = 2200; // slow spawn rate
+  const PIPE_INTERVAL_MS = 1800;
   const BIRD_SIZE = 50;
   const BIRD_X = 100;
 
-  containerEl.innerHTML = `
+  const wrapper = document.createElement("div");
+  containerEl.appendChild(wrapper);
+  wrapper.innerHTML = `
     <div class="play-instructions">Tap or click to flap. Reach ${WIN_SCORE} to win.</div>
     <div class="flappy-score">0 / ${WIN_SCORE}</div>
     <div class="flappy-bird-el">🐦</div>
@@ -29,10 +33,10 @@ function initFlappyBird({ containerEl, onWin }) {
     </div>
   `;
 
-  const scoreEl = containerEl.querySelector(".flappy-score");
-  const birdEl = containerEl.querySelector(".flappy-bird-el");
-  const gameoverOverlay = containerEl.querySelector(".flappy-gameover-overlay");
-  const retryBtn = containerEl.querySelector(".flappy-retry-btn");
+  const scoreEl = wrapper.querySelector(".flappy-score");
+  const birdEl = wrapper.querySelector(".flappy-bird-el");
+  const gameoverOverlay = wrapper.querySelector(".flappy-gameover-overlay");
+  const retryBtn = wrapper.querySelector(".flappy-retry-btn");
 
   let areaHeight, areaWidth;
   let birdY, velocity, pipes, score, running, lastTime, spawnTimer, rafId;
@@ -52,7 +56,7 @@ function initFlappyBird({ containerEl, onWin }) {
     lastTime = null;
     scoreEl.textContent = `0 / ${WIN_SCORE}`;
     gameoverOverlay.classList.add("hidden");
-    containerEl.querySelectorAll(".flappy-pipe").forEach((el) => el.remove());
+    wrapper.querySelectorAll(".flappy-pipe").forEach((el) => el.remove());
     pipes = [];
     render();
 
@@ -67,8 +71,8 @@ function initFlappyBird({ containerEl, onWin }) {
     topEl.className = "flappy-pipe flappy-pipe--top";
     const bottomEl = document.createElement("div");
     bottomEl.className = "flappy-pipe flappy-pipe--bottom";
-    containerEl.appendChild(topEl);
-    containerEl.appendChild(bottomEl);
+    wrapper.appendChild(topEl);
+    wrapper.appendChild(bottomEl);
     pipes.push({ x: areaWidth, gapTop, passed: false, topEl, bottomEl });
   }
 
@@ -150,7 +154,7 @@ function initFlappyBird({ containerEl, onWin }) {
     velocity = FLAP_VELOCITY;
   }
 
-  containerEl.addEventListener("pointerdown", (e) => {
+  wrapper.addEventListener("pointerdown", (e) => {
     if (e.target.closest(".flappy-gameover-overlay")) return;
     e.preventDefault();
     flap();

@@ -10,12 +10,13 @@ const OUTBOX_PATH = path.join(__dirname, "..", "..", "data", "outbox.log");
  * Resend/SendGrid) drops in here later, once the user has their own
  * account/API key for it. Nothing here talks to a real mail server yet.
  */
-function sendAnswerNotification({ buyerEmail, templateName, question, answer, instanceToken }) {
+function sendAnswerNotification({ buyerEmail, templateName, recipientName, question, answer, instanceToken }) {
   const mode = process.env.EMAIL_MODE || "console";
   const payload = {
     to: buyerEmail,
     subject: `New answer: "${answer}"`,
     game: templateName,
+    from: recipientName,
     question,
     answer,
     instanceToken,
@@ -32,6 +33,7 @@ function sendAnswerNotification({ buyerEmail, templateName, question, answer, in
   console.log(`To: ${payload.to}`);
   console.log(`Subject: ${payload.subject}`);
   console.log(`Game: ${payload.game}`);
+  console.log(`From: ${payload.from}`);
   console.log(`Question: ${payload.question}`);
   console.log(`Answer: ${payload.answer}`);
   console.log("-------------------------------\n");

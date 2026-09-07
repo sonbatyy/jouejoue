@@ -6,7 +6,12 @@
     </span>
     <span class="wordmark">JoueJoue</span>
   </a>
-  <ul class="site-nav__links">
+  <button type="button" class="site-nav__toggle" aria-expanded="false" aria-controls="site-nav-links" aria-label="Open menu">
+    <span class="site-nav__toggle-bar"></span>
+    <span class="site-nav__toggle-bar"></span>
+    <span class="site-nav__toggle-bar"></span>
+  </button>
+  <ul class="site-nav__links" id="site-nav-links">
     <li><a href="/#how-it-works" class="nav-underline">How it works</a></li>
     <li><a href="/#pricing" class="nav-underline">Pricing</a></li>
     <li><a href="/#catalog" class="nav-underline">Games</a></li>
@@ -14,3 +19,24 @@
     <li><a href="/contact" class="nav-underline">Contact</a></li>
   </ul>
 </nav>
+<script>
+  // Small, self-contained so every page that includes this partial gets a
+  // working mobile menu without also needing its own script tag list.
+  (function () {
+    var toggle = document.querySelector(".site-nav__toggle");
+    var links = document.getElementById("site-nav-links");
+    if (!toggle || !links) return;
+    toggle.addEventListener("click", function () {
+      var open = links.classList.toggle("is-open");
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      toggle.classList.toggle("is-open", open);
+    });
+    links.querySelectorAll("a").forEach(function (a) {
+      a.addEventListener("click", function () {
+        links.classList.remove("is-open");
+        toggle.setAttribute("aria-expanded", "false");
+        toggle.classList.remove("is-open");
+      });
+    });
+  })();
+</script>

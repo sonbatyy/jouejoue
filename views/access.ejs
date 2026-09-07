@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('layout-partials/head', { title: 'Enter password' }) %>
+</head>
+<body>
+  <div class="page-bg">
+    <div class="page-bg__blob page-bg__blob--1"></div>
+    <div class="page-bg__blob page-bg__blob--2"></div>
+  </div>
+
+  <div class="status-page">
+    <div class="status-page__card">
+      <p class="eyebrow">Private preview</p>
+      <h1 style="font-size: 28px;">JoueJoue</h1>
+      <p>This is a prototype, not open to everyone yet. If you were given a password, enter it below.</p>
+
+      <div class="form-card" style="margin-top: 20px; max-width: 320px;">
+        <form method="POST" action="/access">
+          <input type="hidden" name="redirect" value="<%= redirectTo %>" />
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" autofocus required />
+          <button type="submit" class="btn btn-primary">Enter</button>
+          <% if (error) { %>
+            <p style="color: var(--color-accent-dark); font-size: 13px; margin-top: 10px;">That password isn't right.</p>
+          <% } %>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

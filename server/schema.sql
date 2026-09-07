@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS game_instances (
   template_id    INTEGER NOT NULL REFERENCES game_templates(id),
   token          TEXT UNIQUE NOT NULL,
   buyer_email    TEXT NOT NULL,
+  recipient_name TEXT NOT NULL DEFAULT '',   -- who's playing, so the win screen can say "Bravo <name>"
   question       TEXT NOT NULL,
   status         TEXT NOT NULL DEFAULT 'pending',  -- pending | answered
   answer         TEXT,
