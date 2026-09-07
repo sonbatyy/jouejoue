@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('layout-partials/head', { title: 'Demo' }) %>
+</head>
+<body>
+  <div class="play-shell">
+    <a href="/" class="btn btn-secondary demo-back-btn">Back to JoueJoue</a>
+
+    <% if (playData.templateSlug === 'cake-catch') { %>
+      <div class="play-instructions">Demo mode. Catch the cake and drag it into the mouse's mouth.</div>
+
+      <div id="play-mouse">
+        <div class="mouse-emoji">🐭</div>
+        <div id="play-mouth"></div>
+      </div>
+
+      <div class="critter cake">🍰</div>
+    <% } else if (playData.templateSlug === 'duck-catch') { %>
+      <div class="play-instructions">Demo mode. Catch the duck before it gets away.</div>
+      <div class="critter duck click-catch">🦆</div>
+    <% } %>
+    <!-- flappy-bird and cooking build their own markup via JS. -->
+
+    <div class="demo-switch">
+      <a href="/demo?game=cake-catch" class="btn <%= playData.templateSlug === 'cake-catch' ? 'btn-primary' : 'btn-secondary' %>">Cake</a>
+      <a href="/demo?game=duck-catch" class="btn <%= playData.templateSlug === 'duck-catch' ? 'btn-primary' : 'btn-secondary' %>">Duck</a>
+      <a href="/demo?game=flappy-bird" class="btn <%= playData.templateSlug === 'flappy-bird' ? 'btn-primary' : 'btn-secondary' %>">Flappy</a>
+      <a href="/demo?game=cooking" class="btn <%= playData.templateSlug === 'cooking' ? 'btn-primary' : 'btn-secondary' %>">Cooking</a>
+    </div>
+  </div>
+
+  <script>
+    window.__PLAY__ = <%- JSON.stringify(playData).replace(/</g, '\\u003c') %>;
+  </script>
+  <script src="/js/games/shared.js"></script>
+  <script src="/js/games/cake-catch.js"></script>
+  <script src="/js/games/duck-catch.js"></script>
+  <script src="/js/games/flappy-bird.js"></script>
+  <script src="/js/games/cooking.js"></script>
+  <script src="/js/demo-client.js"></script>
+</body>
+</html>

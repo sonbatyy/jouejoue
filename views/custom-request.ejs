@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('layout-partials/head', { title: 'Request a custom game' }) %>
+</head>
+<body>
+  <div class="page-bg">
+    <div class="page-bg__blob page-bg__blob--1"></div>
+    <div class="page-bg__blob page-bg__blob--2"></div>
+  </div>
+
+  <div class="container">
+    <%- include('layout-partials/nav') %>
+
+    <section class="section-tight">
+      <div style="text-align: center; max-width: 560px; margin: 0 auto;">
+        <p class="eyebrow"><%= template.priceDisplay %></p>
+        <h1 style="font-size: 30px;">Tell us the gesture you have in mind</h1>
+        <p><%= template.description %></p>
+      </div>
+
+      <div class="form-card" style="margin-top: 24px;">
+        <form method="POST" action="/api/custom-requests">
+          <label for="gameIdea">What do you want the game to be?</label>
+          <textarea id="gameIdea" name="gameIdea" placeholder="A quiz, a treasure hunt, something else entirely..." required></textarea>
+
+          <label for="purpose">What is it for?</label>
+          <textarea id="purpose" name="purpose" placeholder="The occasion, who it's for, anything that helps us get it right." required></textarea>
+
+          <label for="buyerEmail">Your email</label>
+          <input type="email" id="buyerEmail" name="buyerEmail" placeholder="you@example.com" required />
+
+          <button type="submit" class="btn btn-primary">Send request</button>
+        </form>
+      </div>
+    </section>
+
+    <%- include('layout-partials/footer') %>
+  </div>
+</body>
+</html>

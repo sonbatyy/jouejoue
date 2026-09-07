@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('layout-partials/head', { title: 'Home' }) %>
+</head>
+<body>
+  <div class="page-bg">
+    <div class="page-bg__blob page-bg__blob--1"></div>
+    <div class="page-bg__blob page-bg__blob--2"></div>
+  </div>
+
+  <div class="container">
+    <%- include('layout-partials/nav') %>
+
+    <section class="section hero" data-reveal>
+      <p class="eyebrow">A tiny gesture, sent as a game</p>
+      <h1>Ask them something. Make them <span class="wash-text">play</span> for the answer.</h1>
+      <p style="margin-top: 16px; font-size: 17px;">
+        Pick a minigame, write your question, send the link. When they catch it, you get emailed what they said.
+      </p>
+      <div class="hero__actions">
+        <a href="#catalog" class="btn btn-primary">Browse games</a>
+        <a href="/demo" class="btn btn-secondary">Try a demo</a>
+      </div>
+    </section>
+
+    <section class="section-tight trust-strip" data-reveal-stagger>
+      <div class="trust-item">
+        <span class="trust-item__icon">✓</span>
+        No account needed
+      </div>
+      <div class="trust-item">
+        <span class="trust-item__icon">✓</span>
+        A private link, just for them
+      </div>
+      <div class="trust-item">
+        <span class="trust-item__icon">✓</span>
+        Nothing charged until checkout
+      </div>
+      <div class="trust-item">
+        <span class="trust-item__icon">✓</span>
+        Their answer lands straight in your inbox
+      </div>
+    </section>
+
+    <section class="section" id="how-it-works">
+      <div data-reveal>
+        <p class="eyebrow">How it works</p>
+        <h2>From an idea to an answer in four steps.</h2>
+      </div>
+      <div class="steps steps--rail" data-reveal-stagger>
+        <div class="step">
+          <div class="step__marker">01</div>
+          <h3>Pick a game</h3>
+          <p>Choose from the bank, or ask for something custom built.</p>
+        </div>
+        <div class="step step--brown">
+          <div class="step__marker">02</div>
+          <h3>Write your question</h3>
+          <p>Anything: what to eat, where to go, a yes or no that matters.</p>
+        </div>
+        <div class="step step--black">
+          <div class="step__marker">03</div>
+          <h3>Share the link</h3>
+          <p>Send it to whoever you want to ask. It stays live for a month.</p>
+        </div>
+        <div class="step">
+          <div class="step__marker">04</div>
+          <h3>Get the answer</h3>
+          <p>The moment they play it and answer, it lands in your inbox.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-tight" id="ideas">
+      <div data-reveal style="text-align: center;">
+        <p class="eyebrow">Not sure what to ask</p>
+        <h2>Steal one of these.</h2>
+      </div>
+      <div class="idea-chips" data-reveal-stagger>
+        <a href="#catalog" class="idea-chip">Pizza or sushi tonight?</a>
+        <a href="#catalog" class="idea-chip">Where should we go this weekend?</a>
+        <a href="#catalog" class="idea-chip">What should we name the puppy?</a>
+        <a href="#catalog" class="idea-chip">Beach or mountains for the trip?</a>
+        <a href="#catalog" class="idea-chip">What's for your birthday dinner?</a>
+        <a href="#catalog" class="idea-chip">Should we finally get that tattoo?</a>
+      </div>
+    </section>
+
+    <section class="section" id="pricing">
+      <div data-reveal>
+        <p class="eyebrow">Pricing</p>
+        <h2>Cheap on purpose. It's a gesture, not a purchase.</h2>
+      </div>
+      <div class="tiers" data-reveal>
+        <div class="tier">
+          <h3>Bank Game</h3>
+          <div class="tier__price"><%= bankGameRange.display %></div>
+          <p>Pick a ready-made minigame and ask your question in minutes.</p>
+          <ul class="tier__features">
+            <li>Instant, ready to share</li>
+            <li>Live for 1 month</li>
+            <li>Email the moment they answer</li>
+          </ul>
+          <a href="#catalog" class="btn btn-secondary" style="width: 100%;">Browse games</a>
+        </div>
+        <div class="tier tier--highlighted">
+          <span class="tier__badge">Most personal</span>
+          <h3>Custom Game</h3>
+          <div class="tier__price"><%= customTier.priceDisplay %></div>
+          <p>Tell us what you want the game to be and what it's for. We build it around your idea.</p>
+          <ul class="tier__features">
+            <li>Everything in Bank Game</li>
+            <li>Built around your idea</li>
+            <li>Renewable monthly for a small fee</li>
+          </ul>
+          <a href="/custom-request/<%= customTier.id %>" class="btn btn-primary" style="width: 100%;">Request a custom game</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="catalog">
+      <div data-reveal>
+        <p class="eyebrow">The bank</p>
+        <h2>Pick a game to send.</h2>
+      </div>
+      <div class="catalog-grid" data-reveal-stagger>
+        <% const cardTones = ['', 'game-card--brown', 'game-card--black']; %>
+        <% catalogGames.forEach(function(game, i) { %>
+          <div class="game-card lift <%= cardTones[i % cardTones.length] %>">
+            <h3><%= game.name %></h3>
+            <p class="game-card__description"><%= game.description %></p>
+            <div class="game-card__footer">
+              <div class="game-card__price"><%= game.priceDisplay %></div>
+              <a href="/payment/<%= game.id %>" class="btn btn-primary">Buy and create</a>
+            </div>
+          </div>
+        <% }); %>
+        <div class="game-card lift <%= cardTones[catalogGames.length % cardTones.length] %>">
+          <h3>Something else in mind?</h3>
+          <p class="game-card__description">Tell us what you want the game to be and what it's for.</p>
+          <div class="game-card__footer">
+            <div class="game-card__price"><%= customTier.priceDisplay %></div>
+            <a href="/custom-request/<%= customTier.id %>" class="btn btn-secondary">Request a custom game</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <%- include('layout-partials/footer') %>
+  </div>
+
+  <script src="/js/reveal.js"></script>
+</body>
+</html>

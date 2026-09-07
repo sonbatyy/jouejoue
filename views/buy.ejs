@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('layout-partials/head', { title: 'Buy · ' + template.name }) %>
+</head>
+<body>
+  <div class="page-bg">
+    <div class="page-bg__blob page-bg__blob--1"></div>
+    <div class="page-bg__blob page-bg__blob--2"></div>
+  </div>
+
+  <div class="container">
+    <%- include('layout-partials/nav') %>
+
+    <section class="section-tight">
+      <div style="text-align: center; max-width: 560px; margin: 0 auto;">
+        <p class="eyebrow">Payment successful (mock)</p>
+        <h1 style="font-size: 30px;"><%= template.name %></h1>
+        <p><%= template.description %></p>
+        <p class="game-card__price" style="margin-top: 8px;"><%= template.priceDisplay %></p>
+      </div>
+
+      <div class="form-card" style="margin-top: 24px;">
+        <h3>Set up your game</h3>
+        <p style="font-size: 14px; margin-top: 4px;">This gets sent to whoever plays it. Write it however you'd actually ask.</p>
+
+        <form method="POST" action="/api/instances">
+          <input type="hidden" name="templateId" value="<%= template.id %>" />
+
+          <label for="question">Your question</label>
+          <textarea id="question" name="question" placeholder="What should we do this weekend?" required></textarea>
+
+          <label for="buyerEmail">Your email (we'll send the answer here)</label>
+          <input type="email" id="buyerEmail" name="buyerEmail" placeholder="you@example.com" required />
+
+          <button type="submit" class="btn btn-primary">Create my game link</button>
+        </form>
+      </div>
+    </section>
+
+    <%- include('layout-partials/footer') %>
+  </div>
+</body>
+</html>

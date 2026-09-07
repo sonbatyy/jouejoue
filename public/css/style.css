@@ -1,0 +1,918 @@
+/* ============================================================
+   Design tokens — a warm cream/blush base (bridging fitout's
+   cream/tan and juju's pink/cream) with one terracotta-coral
+   accent as the single "thing you click" color, per jinder's
+   own design-token philosophy.
+   ============================================================ */
+:root {
+  --color-cream: #fbf1e6;
+  --color-blush: #ffe9f0;
+  --color-ink: #332a22;
+  --color-ink-soft: #6f6258;
+  --color-ink-faint: #a89a8d;
+
+  --color-accent: #cf5d3b;
+  --color-accent-dark: #a8482c;
+  --color-accent-soft: #f7ded2;
+
+  /* One extra tone beyond the accent, jinder-style: enough for a step or a
+     card to have its own identity without turning into a rainbow. "Black"
+     reuses --color-ink itself further down, so nothing new to add for that. */
+  --color-tone-brown: #8a5a3c;
+  --color-tone-brown-soft: #ecdcc9;
+  --color-ink-soft-bg: #e7e1d8;
+
+  --color-border: #ecdfc9;
+  --color-border-strong: #ddc6a0;
+  --color-surface: #ffffff;
+
+  --shadow-card: 0 1px 2px rgba(51, 42, 34, 0.06);
+  --shadow-pop: 0 22px 44px -26px rgba(51, 42, 34, 0.35);
+
+  /* One heavy, uppercase, tight-tracked face reserved for headlines and the
+     wordmark only, Swire-style — never body copy, since a paragraph of
+     shouting is unreadable. */
+  --font-display: "Archivo Black", Georgia, "Times New Roman", serif;
+
+  /* The signature wash: used sparingly, one or two moments per page that
+     should stop somebody scrolling, never a background-everywhere gradient.
+     Drawn from our own accent + brown, not borrowed from anyone else's. */
+  --wash-from: var(--color-accent);
+  --wash-to: var(--color-tone-brown);
+  --wash: linear-gradient(135deg, var(--wash-from), var(--wash-to));
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: linear-gradient(180deg, var(--color-blush) 0%, var(--color-cream) 420px, var(--color-cream) 100%);
+  color: var(--color-ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Montserrat, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+img, svg {
+  max-width: 100%;
+}
+
+/* ============================================================
+   Layout primitives
+   ============================================================ */
+.container {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-inline: 24px;
+}
+
+.section {
+  padding-block: clamp(32px, 5vw, 64px);
+  position: relative;
+}
+
+.section-tight {
+  padding-block: clamp(20px, 3vw, 36px);
+}
+
+.eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin: 0 0 8px;
+}
+
+h1, h2, h3 {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: var(--color-ink);
+}
+
+/* Headlines get the display face: heavy, uppercase, tight. Card/tier titles
+   (h3) stay a normal-case bold system font — uppercase everywhere would be
+   shouting at every card, not just the moments that deserve it. */
+h1, h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+h1 { font-size: clamp(30px, 5vw, 48px); line-height: 1.08; }
+h2 { font-size: clamp(23px, 3.2vw, 32px); line-height: 1.15; }
+h3 { font-size: 19px; line-height: 1.3; }
+
+/* The wordmark, set the same way as the headlines. */
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+/* The signature wash, for the one or two places on a page that should stop
+   somebody scrolling. Used sparingly on purpose: a gradient everywhere is a
+   gradient nowhere. */
+.wash {
+  background-image: var(--wash);
+  color: #fff;
+}
+.wash-text {
+  background-image: var(--wash);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+p {
+  color: var(--color-ink-soft);
+  line-height: 1.55;
+}
+
+/* Decorative blurred blobs for depth on a plain warm ground. */
+.page-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.page-bg__blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(70px);
+}
+.page-bg__blob--1 {
+  top: -8%;
+  right: -6%;
+  width: min(50vw, 620px);
+  height: min(50vw, 620px);
+  background: radial-gradient(circle, rgba(255, 233, 240, 0.9) 0%, rgba(255, 233, 240, 0) 70%);
+}
+.page-bg__blob--2 {
+  top: 40%;
+  left: -12%;
+  width: min(55vw, 680px);
+  height: min(55vw, 680px);
+  background: radial-gradient(circle, rgba(207, 93, 59, 0.14) 0%, rgba(207, 93, 59, 0) 70%);
+}
+
+/* ============================================================
+   Scroll reveal — ported from jinder's [data-reveal] mechanism:
+   plain CSS + a small IntersectionObserver script (public/js/reveal.js),
+   gated behind html.js so no-JS clients still see everything.
+   ============================================================ */
+html.js [data-reveal],
+html.js [data-reveal-stagger] > * {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+html.js [data-reveal].is-visible,
+html.js [data-reveal-stagger].is-visible > * {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.js [data-reveal],
+  html.js [data-reveal-stagger] > * {
+    transition-delay: 0ms !important;
+  }
+}
+
+/* Cards that lift on hover or keyboard focus, never hover only. */
+.lift {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.lift:hover, .lift:focus-within {
+  transform: translateY(-4px);
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-pop);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lift:hover, .lift:focus-within {
+    transform: none;
+  }
+  .step__marker {
+    transition: none;
+  }
+  .step:hover .step__marker {
+    transform: none;
+  }
+  .ingredient-tile:hover {
+    transform: none;
+  }
+}
+
+/* ============================================================
+   Nav
+   ============================================================ */
+.site-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 20px;
+}
+
+.site-nav__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 18px;
+  text-decoration: none;
+  color: var(--color-ink);
+}
+
+/* Two interlocking Js, rotated against each other, standing in for a mark. */
+.logo-mark {
+  position: relative;
+  display: inline-block;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+}
+.logo-mark__j {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 800;
+  font-size: 24px;
+  line-height: 1;
+}
+.logo-mark__j--a {
+  color: var(--color-accent);
+}
+.logo-mark__j--b {
+  color: var(--color-tone-brown);
+  transform: rotate(180deg);
+}
+
+.site-nav__links {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-underline {
+  position: relative;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-ink-soft);
+}
+.nav-underline::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: -6px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.2s ease;
+}
+.nav-underline:hover::after {
+  transform: scaleX(1);
+}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.btn-primary {
+  background: var(--color-accent);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: var(--color-accent-dark);
+}
+/* Higher specificity than .btn-primary so a wash button (a deliberately rare,
+   high-stakes moment like checkout) actually gets the gradient. */
+.btn.wash {
+  background-image: var(--wash);
+  background-color: transparent;
+}
+.btn.wash:hover {
+  filter: brightness(0.92);
+}
+
+.btn-secondary {
+  background: transparent;
+  border-color: var(--color-border-strong);
+  color: var(--color-ink);
+}
+.btn-secondary:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+/* ============================================================
+   Hero
+   ============================================================ */
+.hero {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.hero__actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+
+/* ============================================================
+   How it works — fitout's numbered-step pattern
+   ============================================================ */
+.steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0;
+  margin-top: 28px;
+  border-top: 1px solid var(--color-border);
+}
+.step {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--color-border);
+  cursor: default;
+  transition: background 0.2s ease;
+}
+.step:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+@media (min-width: 860px) {
+  .step {
+    border-bottom: none;
+    border-left: 1px solid var(--color-border);
+  }
+  .step:first-child {
+    border-left: none;
+  }
+}
+.step__marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-family: ui-monospace, monospace;
+  font-weight: 700;
+  font-size: 13px;
+  margin-bottom: 8px;
+  background: var(--step-tone-soft, var(--color-accent-soft));
+  color: var(--step-tone, var(--color-accent));
+  transition: transform 0.2s ease;
+}
+.step:hover .step__marker {
+  transform: scale(1.1);
+}
+.step--brown { --step-tone: var(--color-tone-brown); --step-tone-soft: var(--color-tone-brown-soft); }
+.step--black { --step-tone: var(--color-ink); --step-tone-soft: var(--color-ink-soft-bg); }
+
+/* A small connecting arrow per step (not one long background line) so it
+   naturally stays correct even when steps wrap to a second row. */
+.steps--rail .step {
+  position: relative;
+}
+@media (min-width: 860px) {
+  .steps--rail .step:not(:first-child)::before {
+    content: "→";
+    position: absolute;
+    top: 22px;
+    left: -9px;
+    color: var(--color-border-strong);
+    font-size: 14px;
+    font-weight: 700;
+  }
+}
+
+/* ============================================================
+   Trust strip
+   ============================================================ */
+.trust-strip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 32px;
+  text-align: center;
+}
+.trust-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-ink-soft);
+}
+.trust-item__icon {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+/* ============================================================
+   Idea chips
+   ============================================================ */
+.idea-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+.idea-chip {
+  display: inline-block;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-ink);
+  text-decoration: none;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, background 0.2s ease;
+}
+.idea-chip:hover, .idea-chip:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .idea-chip:hover, .idea-chip:focus-visible {
+    transform: none;
+  }
+}
+
+/* ============================================================
+   Pricing tiers — fitout's Tiers.tsx: a bordered/divided row,
+   one tier highlighted.
+   ============================================================ */
+.tiers {
+  display: grid;
+  grid-template-columns: 1fr;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-top: 24px;
+  background: var(--color-surface);
+}
+@media (min-width: 640px) {
+  .tiers { grid-template-columns: 1fr 1fr; }
+}
+.tier {
+  padding: 22px;
+  border-top: 1px solid var(--color-border);
+  position: relative;
+}
+@media (min-width: 640px) {
+  .tier { border-top: none; }
+  .tier + .tier { border-left: 1px solid var(--color-border); }
+}
+.tier--highlighted::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 4px;
+  background: var(--color-accent);
+}
+.tier__badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+.tier__price {
+  font-size: 28px;
+  font-weight: 800;
+  margin: 6px 0 2px;
+}
+.tier__features {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 14px;
+}
+.tier__features li::before {
+  content: "✓ ";
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+/* ============================================================
+   Catalog grid
+   ============================================================ */
+.catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+.game-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-top: 3px solid var(--card-tone, var(--color-accent));
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.game-card--brown { --card-tone: var(--color-tone-brown); }
+.game-card--black { --card-tone: var(--color-ink); }
+.game-card__description {
+  min-height: 4.6em;
+}
+.game-card__footer {
+  margin-top: auto;
+  padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.game-card__price {
+  font-weight: 700;
+  color: var(--card-tone, var(--color-accent));
+  font-size: 14px;
+}
+
+/* ============================================================
+   Forms
+   ============================================================ */
+.form-card {
+  max-width: 480px;
+  margin: 0 auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 22px;
+}
+label {
+  display: block;
+  font-weight: 700;
+  font-size: 14px;
+  margin: 12px 0 5px;
+}
+label:first-of-type { margin-top: 0; }
+input[type="text"],
+input[type="email"],
+textarea {
+  width: 100%;
+  padding: 11px 13px;
+  font-size: 15px;
+  border: 2px solid var(--color-border);
+  border-radius: 10px;
+  outline: none;
+  font-family: inherit;
+}
+input:focus, textarea:focus {
+  border-color: var(--color-accent);
+}
+textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+.form-card .btn {
+  width: 100%;
+  margin-top: 14px;
+}
+
+/* ============================================================
+   Mock checkout
+   ============================================================ */
+.order-summary {
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: var(--color-cream);
+}
+.order-summary__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 15px;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.form-row label {
+  margin-top: 12px;
+}
+.form-fineprint {
+  font-size: 12px;
+  color: var(--color-ink-faint);
+  text-align: center;
+  margin-top: 10px;
+  line-height: 1.4;
+}
+
+/* ============================================================
+   Confirmation / share link
+   ============================================================ */
+.share-box {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.share-box input {
+  flex: 1;
+  min-width: 200px;
+  background: var(--color-cream);
+}
+
+/* ============================================================
+   Play page — juju-style catch mechanics
+   ============================================================ */
+.play-shell {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  touch-action: none;
+  background: linear-gradient(135deg, var(--color-blush) 0%, var(--color-cream) 100%);
+}
+
+/* Demo page controls float over the game itself rather than sitting in a
+   solid header bar: a back link top-left, the game switcher bottom-center
+   so it's out of the way of the instructions banner up top. */
+.demo-back-btn {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 6;
+  background: rgba(255, 255, 255, 0.75);
+}
+.demo-switch {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  max-width: 92%;
+}
+.play-instructions {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-ink);
+  background: rgba(255, 255, 255, 0.75);
+  padding: 8px 16px;
+  border-radius: 20px;
+  z-index: 5;
+  text-align: center;
+  max-width: 90%;
+}
+.critter {
+  position: absolute;
+  font-size: 62px;
+  line-height: 1;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  /* Slow on purpose right now: this is a prototype and we're still testing
+     the win flow, not tuning difficulty. Speed this back up later. */
+  transition: top 0.8s ease-out, left 0.8s ease-out;
+  filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.25));
+  z-index: 10;
+}
+.critter.grabbed {
+  cursor: grabbing;
+  transition: none;
+  z-index: 20;
+  transform: scale(1.15);
+}
+.critter.click-catch {
+  cursor: pointer;
+}
+#play-mouse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 8;
+}
+#play-mouse .mouse-emoji {
+  font-size: 88px;
+  line-height: 1;
+  filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.25));
+}
+#play-mouth {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+}
+
+/* ============================================================
+   Cook the Dish
+   ============================================================ */
+.recipe-strip {
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  z-index: 5;
+}
+.recipe-slot {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  border-radius: 12px;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  opacity: 0.55;
+}
+.recipe-slot.current {
+  border-color: var(--color-accent);
+  opacity: 1;
+}
+.recipe-slot.done {
+  border-color: var(--color-tone-brown);
+  background: var(--color-tone-brown-soft);
+  opacity: 1;
+}
+.ingredient-board {
+  position: absolute;
+  top: 150px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 80%;
+}
+.ingredient-tile {
+  font-size: 48px;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.2s ease, opacity 0.3s ease;
+  filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.2));
+}
+.ingredient-tile:hover {
+  transform: scale(1.08);
+}
+.ingredient-tile.used {
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+/* ============================================================
+   Flap to 20
+   ============================================================ */
+.flappy-score {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 6;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--color-ink);
+  background: rgba(255, 255, 255, 0.75);
+  padding: 8px 14px;
+  border-radius: 20px;
+}
+.flappy-bird-el {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  font-size: 42px;
+  line-height: 50px;
+  text-align: center;
+  z-index: 4;
+  filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.25));
+}
+.flappy-pipe {
+  position: absolute;
+  background: var(--color-tone-brown);
+  border: 3px solid var(--color-ink);
+  border-radius: 6px;
+  z-index: 3;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(51, 42, 34, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+.overlay.hidden { display: none; }
+
+.modal-box {
+  background: #fff;
+  border-radius: 16px;
+  padding: 22px 26px;
+  max-width: 380px;
+  width: 90%;
+  text-align: center;
+  box-shadow: var(--shadow-pop);
+}
+.modal-box .answer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+.hidden { display: none !important; }
+
+/* ============================================================
+   Footer
+   ============================================================ */
+.site-footer {
+  border-top: 1px solid var(--color-border);
+  padding-block: 28px;
+  font-size: 13px;
+  color: var(--color-ink-faint);
+  text-align: center;
+}
+
+/* Simple centered page for expired / already-answered / 404-ish states */
+.status-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+}
+.status-page__card {
+  max-width: 420px;
+}

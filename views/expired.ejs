@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('layout-partials/head', { title: 'Expired' }) %>
+</head>
+<body>
+  <div class="status-page">
+    <div class="status-page__card">
+      <p class="eyebrow">This link has expired</p>
+      <h1 style="font-size: 26px;"><%= message %></h1>
+      <% if (typeof canRenew !== 'undefined' && canRenew) { %>
+        <p>Simulate a <%= renewPriceDisplay %> renewal to keep it live for another month.</p>
+        <button class="btn btn-primary" id="renew-btn" type="button">Simulate renewal and continue</button>
+        <script>
+          document.getElementById('renew-btn').addEventListener('click', async () => {
+            const res = await fetch('/api/instances/<%= token %>/renew', { method: 'POST' });
+            if (res.ok) window.location.reload();
+          });
+        </script>
+      <% } else { %>
+        <a href="/" class="btn btn-secondary" style="margin-top: 16px;">Back to home</a>
+      <% } %>
+    </div>
+  </div>
+</body>
+</html>
