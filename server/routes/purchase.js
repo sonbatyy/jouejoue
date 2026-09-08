@@ -2,7 +2,7 @@ const express = require("express");
 const db = require("../db");
 const { generateToken } = require("../lib/tokens");
 const { computeExpiry } = require("../lib/expiry");
-const { resolveCurrency, withLocalizedPrice } = require("../lib/pricing");
+const { resolveCurrency, withLocalizedPrice, allLocalizedPrices, localizedPrice, SWITCHABLE_CURRENCIES } = require("../lib/pricing");
 
 const router = express.Router();
 
@@ -14,7 +14,19 @@ router.get("/payment/:templateId", async (req, res) => {
     .get(req.params.templateId);
   if (!template) return res.status(404).render("expired", { message: "That game doesn't exist." });
   const currency = await resolveCurrency(req);
-  res.render("payment", { template: withLocalizedPrice(template, currency) });
+  // The curated switcher list plus whatever we actually detected for this
+  // visitor, in case geolocation landed on a currency outside that curated
+  // set (e.g. TRY) — their own detected price should always be an option,
+  // not silently swapped for the first entry in the list.
+  const currencies = currency && !SWITCHABLE_CURRENCIES.includes(currency)
+    ? [currency, ...SWITCHABLE_CURRENCIES]
+    : SWITCHABLE_CURRENCIES;
+  res.render("payment", {
+    template: withLocalizedPrice(template, currency),
+    currency,
+    allPrices: { ...allLocalizedPrices(template), [currency]: localizedPrice(template, currency) },
+    currencies,
+  });
 });
 
 // Mock checkout only: intentionally never reads req.body here, so no card

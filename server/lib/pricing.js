@@ -7,6 +7,7 @@ const USD_RATES = {
   USD: 1,
   EUR: 0.92,
   GBP: 0.79,
+  EGP: 49, // only used to show EGP as an *equivalent* to a non-Egypt visitor; someone actually in Egypt gets template.price_egp instead, a deliberately set price, not this conversion
   AED: 3.67,
   SAR: 3.75,
   CAD: 1.36,
@@ -21,6 +22,12 @@ const USD_RATES = {
   NGN: 1550,
   MAD: 9.9,
 };
+
+// Curated set offered in the payment page's currency switcher — every
+// currency a visitor could plausibly want to check, not literally every key
+// above (e.g. no need to clutter the list with two Gulf currencies most
+// visitors will never pick alongside their own).
+const SWITCHABLE_CURRENCIES = ["EGP", "USD", "EUR", "GBP", "AED", "SAR", "CAD", "AUD", "INR"];
 
 // Country/region code (from a locale tag's region subtag) -> currency code.
 // Falls back to USD for anything not listed here.
@@ -103,6 +110,20 @@ function withLocalizedPrice(template, currency) {
 }
 
 /**
+ * Every switchable currency's display price for one template, so the
+ * payment page can swap the shown price instantly (no reload, no re-detecting
+ * location) when a visitor picks a different currency than the one we
+ * guessed for them.
+ */
+function allLocalizedPrices(template) {
+  const prices = {};
+  for (const currency of SWITCHABLE_CURRENCIES) {
+    prices[currency] = localizedPrice(template, currency);
+  }
+  return prices;
+}
+
+/**
  * Real geolocation first (where the connection is actually from), the
  * language-header guess only if that lookup fails for any reason.
  */
@@ -117,6 +138,8 @@ module.exports = {
   resolveCurrency,
   localizedPrice,
   withLocalizedPrice,
+  allLocalizedPrices,
   formatConverted,
   formatEgp,
+  SWITCHABLE_CURRENCIES,
 };
