@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <%- include('layout-partials/head', { title: 'Demo' }) %>
+  <%- include('layout-partials/head', { title: 'Demo · ' + playData.templateName }) %>
 </head>
 <body>
   <div class="play-shell">
@@ -21,13 +21,6 @@
       <div class="critter duck click-catch">🦆</div>
     <% } %>
     <!-- flappy-bird and cooking build their own markup via JS. -->
-
-    <div class="demo-switch">
-      <a href="/demo?game=cake-catch" class="btn <%= playData.templateSlug === 'cake-catch' ? 'btn-primary' : 'btn-secondary' %>">Cake</a>
-      <a href="/demo?game=duck-catch" class="btn <%= playData.templateSlug === 'duck-catch' ? 'btn-primary' : 'btn-secondary' %>">Duck</a>
-      <a href="/demo?game=flappy-bird" class="btn <%= playData.templateSlug === 'flappy-bird' ? 'btn-primary' : 'btn-secondary' %>">Flappy</a>
-      <a href="/demo?game=cooking" class="btn <%= playData.templateSlug === 'cooking' ? 'btn-primary' : 'btn-secondary' %>">Cooking</a>
-    </div>
   </div>
 
   <script>

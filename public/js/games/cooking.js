@@ -9,7 +9,7 @@
 // as asked for. Falling is driven by a CSS transition (not
 // requestAnimationFrame), so it keeps animating correctly even in
 // contexts where rAF gets throttled.
-function initCooking({ containerEl, onWin }) {
+function initCooking({ containerEl, onWin, onLose }) {
   const ITEMS = ["🍎", "🍌", "🍇", "🍊", "🍓", "🥕", "🥦", "🍆"];
   const FALL_DURATION_MS = 4000; // slow on purpose, still a prototype
   const SPAWN_INTERVAL_MS = 1100;
@@ -106,6 +106,12 @@ function initCooking({ containerEl, onWin }) {
     resolved = true;
     clearInterval(spawnTimer);
     clearFallingItems();
+    // Real gift play gets a retry overlay — a demo caller passes onLose
+    // instead, skipping straight to the pitch after this one try.
+    if (onLose) {
+      setTimeout(onLose, 200);
+      return;
+    }
     wrapper.querySelector(".cooking-gameover-overlay").classList.remove("hidden");
   }
 

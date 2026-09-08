@@ -4,7 +4,7 @@
 // switcher as siblings; wiping the container's innerHTML was deleting
 // both. The wrapper has no positioning of its own, so absolutely-positioned
 // children inside it still resolve against .play-shell exactly as before.
-function initFlappyBird({ containerEl, onWin }) {
+function initFlappyBird({ containerEl, onWin, onLose }) {
   // Tuned against a headless simulation (aim-for-the-gap bot): 30/30 win
   // rate at this pace — pipes move fast and are spaced well apart (~400px
   // between them), but the gap itself is still a real, reachable target.
@@ -19,6 +19,15 @@ function initFlappyBird({ containerEl, onWin }) {
   const BIRD_X = 100;
 
   const wrapper = document.createElement("div");
+  // Explicit size matters here: with no CSS class, a bare wrapper div only
+  // occupies space where its own in-flow content sits — since every child
+  // inside it (bird, pipes, score chip) is absolutely positioned, the
+  // wrapper itself would otherwise collapse to ~0 height. Taps landing on
+  // empty background then hit containerEl behind it instead of wrapper,
+  // which is where the flap listener below actually lives. Filling the
+  // whole area makes "tap anywhere" mean anywhere, not just on the bird.
+  wrapper.style.position = "absolute";
+  wrapper.style.inset = "0";
   containerEl.appendChild(wrapper);
   wrapper.innerHTML = `
     <div class="play-instructions">Tap or click to flap. Reach ${WIN_SCORE} to win.</div>
@@ -146,6 +155,13 @@ function initFlappyBird({ containerEl, onWin }) {
   function gameOver() {
     running = false;
     if (rafId) cancelAnimationFrame(rafId);
+    // A real gift recipient gets unlimited retries — losing shouldn't end
+    // something someone already paid for. A demo caller passes onLose to
+    // skip the retry overlay entirely: one try, then straight to the pitch.
+    if (onLose) {
+      setTimeout(onLose, 200);
+      return;
+    }
     gameoverOverlay.classList.remove("hidden");
   }
 

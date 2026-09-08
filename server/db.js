@@ -58,8 +58,8 @@ seed([
   },
   {
     slug: "cooking",
-    name: "Cook the Dish",
-    description: "Follow the recipe and add each ingredient in the right order.",
+    name: "Catch It",
+    description: "Fruits and veg fall from the top. Catch the one you're told, miss or grab the wrong one and it's over.",
     price_egp: 75,
     price_usd_cents: 250,
     is_custom_tier: 0,
@@ -80,6 +80,12 @@ seed([
 // IGNORE above only helps for genuinely new slugs).
 db.prepare("UPDATE game_templates SET description = ? WHERE slug = 'cake-catch'").run(
   "A cake runs around the screen. Catch it, feed the mouse, and they answer your question."
+);
+// Cooking was rewritten from a recipe/ingredients game to a catch-the-falling-
+// target game — keep the name/description in sync for anyone already seeded.
+db.prepare("UPDATE game_templates SET name = ?, description = ? WHERE slug = 'cooking'").run(
+  "Catch It",
+  "Fruits and veg fall from the top. Catch the one you're told, miss or grab the wrong one and it's over."
 );
 
 // Retired: clean up on any environment that already seeded it, and any test

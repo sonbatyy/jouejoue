@@ -746,6 +746,51 @@ html.js [data-reveal-stagger].is-visible > * {
 }
 
 /* ============================================================
+   Demo picker — big graphic cards, one tap in, no browsing required
+   ============================================================ */
+.demo-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 8px;
+}
+.demo-picker-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-top: 4px solid var(--card-tone, var(--color-accent));
+  border-radius: 18px;
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  text-decoration: none;
+  color: inherit;
+}
+.demo-picker-card--brown { --card-tone: var(--color-tone-brown); }
+.demo-picker-card--black { --card-tone: var(--color-ink); }
+.demo-picker-card__icon {
+  font-size: 56px;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.demo-picker-card__teaser {
+  color: var(--color-ink-soft);
+  font-size: 14px;
+  min-height: 2.6em;
+}
+.demo-picker-card__price {
+  margin-top: 10px;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--card-tone, var(--color-accent));
+  background: var(--color-cream);
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+/* ============================================================
    Forms
    ============================================================ */
 .form-card {
