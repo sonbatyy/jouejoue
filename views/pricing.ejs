@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('layout-partials/head', { title: 'Pricing' }) %>
+</head>
+<body>
+  <div class="page-bg">
+    <div class="page-bg__blob page-bg__blob--1"></div>
+    <div class="page-bg__blob page-bg__blob--2"></div>
+  </div>
+
+  <div class="container">
+    <%- include('layout-partials/nav') %>
+
+    <section class="section" style="text-align: center;">
+      <p class="eyebrow">Pricing</p>
+      <h1>Cheap on purpose. It's a gesture, not a purchase.</h1>
+      <p style="max-width: 480px; margin: 10px auto 0;">Less than a coffee. Nothing is charged until you actually check out, and every link stays live for a full month.</p>
+    </section>
+
+    <section class="section-tight">
+      <div class="tiers" data-reveal>
+        <div class="tier">
+          <h3>Bank Game</h3>
+          <div class="tier__price"><%= bankGameRange.display %></div>
+          <p>Pick a ready-made minigame and ask your question in minutes.</p>
+          <ul class="tier__features">
+            <li>Instant, ready to share</li>
+            <li>Live for 1 month</li>
+            <li>Email the moment they answer</li>
+          </ul>
+          <a href="/games" class="btn btn-secondary" style="width: 100%;">Browse games</a>
+        </div>
+        <div class="tier tier--highlighted">
+          <span class="tier__badge">Most personal</span>
+          <h3>Custom Game</h3>
+          <div class="tier__price"><%= customTier.priceDisplay %></div>
+          <p>Tell us what you want the game to be and what it's for. We build it around your idea.</p>
+          <ul class="tier__features">
+            <li>Everything in Bank Game</li>
+            <li>Built around your idea</li>
+            <li>Renewable monthly for a small fee</li>
+          </ul>
+          <a href="/custom-request/<%= customTier.id %>" class="btn btn-primary" style="width: 100%;">Request a custom game</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-tight" style="text-align: center;" data-reveal>
+      <p style="color: var(--color-ink-faint); font-size: 14px;">Not sure yet? <a href="/demo" style="color: var(--color-accent); font-weight: 700; text-decoration: none;">Try a demo first</a> — see exactly what they'll play before you pay for anything.</p>
+    </section>
+
+    <%- include('layout-partials/footer') %>
+  </div>
+
+  <script src="/js/reveal.js"></script>
+</body>
+</html>

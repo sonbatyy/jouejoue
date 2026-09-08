@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('layout-partials/head', { title: 'Games' }) %>
+</head>
+<body>
+  <div class="page-bg">
+    <div class="page-bg__blob page-bg__blob--1"></div>
+    <div class="page-bg__blob page-bg__blob--2"></div>
+  </div>
+
+  <div class="container">
+    <%- include('layout-partials/nav') %>
+
+    <section class="section" style="text-align: center;">
+      <p class="eyebrow">The bank</p>
+      <h1>Pick a game to send.</h1>
+      <p style="max-width: 480px; margin: 10px auto 0;">Every game plays in under a minute. Not sure which one? <a href="/demo" style="color: var(--color-accent); font-weight: 700; text-decoration: none;">Try a demo</a> before you decide.</p>
+    </section>
+
+    <section class="section-tight">
+      <div class="catalog-grid" data-reveal-stagger>
+        <% const cardTones = ['', 'game-card--brown', 'game-card--black']; %>
+        <% catalogGames.forEach(function(game, i) { %>
+          <div class="game-card lift <%= cardTones[i % cardTones.length] %>">
+            <h3><%= game.name %></h3>
+            <p class="game-card__description"><%= game.description %></p>
+            <div class="game-card__footer">
+              <div class="game-card__price"><%= game.priceDisplay %></div>
+              <a href="/payment/<%= game.id %>" class="btn btn-primary">Buy and create</a>
+            </div>
+          </div>
+        <% }); %>
+        <div class="game-card lift <%= cardTones[catalogGames.length % cardTones.length] %>">
+          <h3>Something else in mind?</h3>
+          <p class="game-card__description">Tell us what you want the game to be and what it's for.</p>
+          <div class="game-card__footer">
+            <div class="game-card__price"><%= customTier.priceDisplay %></div>
+            <a href="/custom-request/<%= customTier.id %>" class="btn btn-secondary">Request a custom game</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <%- include('layout-partials/footer') %>
+  </div>
+
+  <script src="/js/reveal.js"></script>
+</body>
+</html>

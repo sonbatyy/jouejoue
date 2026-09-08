@@ -4,7 +4,7 @@ const { resolveCurrency, withLocalizedPrice, formatEgp, formatConverted } = requ
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+async function getCatalogData(req) {
   const currency = await resolveCurrency(req);
   const templates = db.prepare("SELECT * FROM game_templates ORDER BY is_custom_tier ASC, id ASC").all();
   const catalogGames = templates.filter((t) => !t.is_custom_tier).map((t) => withLocalizedPrice(t, currency));
@@ -28,7 +28,30 @@ router.get("/", async (req, res) => {
         : `${formatConverted(minCents, currency)} to ${formatConverted(maxCents, currency)}`,
   };
 
-  res.render("landing", { catalogGames, customTier, bankGameRange });
+  return { catalogGames, customTier, bankGameRange, currency };
+}
+
+// Home: one job — get someone to either try a demo or go look at the games.
+// Everything else (how it works, pricing, the full catalog) used to live
+// crammed onto this same page; it now gets its own page, so a visitor is
+// only ever asked to think about one thing at a time.
+router.get("/", async (req, res) => {
+  const { bankGameRange } = await getCatalogData(req);
+  res.render("landing", { bankGameRange });
+});
+
+router.get("/how-it-works", async (req, res) => {
+  res.render("how-it-works");
+});
+
+router.get("/pricing", async (req, res) => {
+  const { customTier, bankGameRange } = await getCatalogData(req);
+  res.render("pricing", { customTier, bankGameRange });
+});
+
+router.get("/games", async (req, res) => {
+  const { catalogGames, customTier } = await getCatalogData(req);
+  res.render("games", { catalogGames, customTier });
 });
 
 module.exports = router;

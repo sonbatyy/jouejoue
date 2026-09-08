@@ -45,16 +45,18 @@ router.get("/demo", async (req, res) => {
 // Play exactly one demo game. Win or lose, the client shows a "make this
 // for real?" prompt straight into checkout for this template — no switcher
 // back to try a different demo.
-router.get("/demo/:slug", (req, res) => {
+router.get("/demo/:slug", async (req, res) => {
   const slug = req.params.slug;
   if (!VALID_SLUGS.includes(slug)) return res.redirect("/demo");
   const template = db.prepare("SELECT * FROM game_templates WHERE slug = ? AND is_custom_tier = 0").get(slug);
   if (!template) return res.redirect("/demo");
+  const currency = await resolveCurrency(req);
   res.render("demo-play", {
     playData: {
       templateSlug: slug,
       templateId: template.id,
       templateName: template.name,
+      templatePrice: withLocalizedPrice(template, currency).priceDisplay,
       question: DEMO_QUESTION,
     },
   });

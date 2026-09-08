@@ -610,6 +610,63 @@ html.js [data-reveal-stagger].is-visible > * {
 }
 
 /* ============================================================
+   Next-step cards — home page's only other job besides the hero:
+   point to the two dedicated pages (how it works / pricing) instead of
+   explaining either of them here. One thing to think about at a time.
+   ============================================================ */
+.next-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  max-width: 720px;
+  margin-inline: auto;
+}
+.next-card {
+  position: relative;
+  display: block;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 20px 22px;
+  text-decoration: none;
+  color: inherit;
+}
+.next-card__eyebrow {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 6px;
+}
+.next-card h3 {
+  margin-bottom: 4px;
+}
+.next-card p {
+  margin: 0;
+  font-size: 14px;
+}
+.next-card__arrow {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  color: var(--color-border-strong);
+  font-size: 18px;
+  font-weight: 700;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+}
+.next-card:hover .next-card__arrow, .next-card:focus-visible .next-card__arrow {
+  transform: translateX(4px);
+  color: var(--color-accent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .next-card:hover .next-card__arrow, .next-card:focus-visible .next-card__arrow {
+    transform: none;
+  }
+}
+
+/* ============================================================
    Idea chips
    ============================================================ */
 .idea-chips {
