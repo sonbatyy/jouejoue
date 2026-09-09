@@ -1,6 +1,6 @@
 const express = require("express");
 const db = require("../db");
-const { generateToken } = require("../lib/tokens");
+const { generatePersonalizedToken } = require("../lib/tokens");
 const { computeExpiry } = require("../lib/expiry");
 const { resolveCurrency, withLocalizedPrice, allLocalizedPrices, localizedPrice, SWITCHABLE_CURRENCIES } = require("../lib/pricing");
 
@@ -60,7 +60,11 @@ router.post("/api/instances", (req, res) => {
   if (!EMAIL_RE.test(buyerEmail)) return res.status(400).send("Please enter a valid email.");
   if (!question) return res.status(400).send("Please write a question.");
 
-  const token = generateToken();
+  // A link that reads as "made for Juju" instead of a random string —
+  // the isTaken check keeps it safe if the same name buys twice.
+  const isTaken = (candidate) =>
+    !!db.prepare("SELECT 1 FROM game_instances WHERE token = ?").get(candidate);
+  const token = generatePersonalizedToken(recipientName, isTaken);
   const now = Date.now();
   db.prepare(`
     INSERT INTO game_instances (template_id, token, buyer_email, recipient_name, question, status, created_at, expires_at)

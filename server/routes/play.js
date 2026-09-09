@@ -1,6 +1,6 @@
 const express = require("express");
 const db = require("../db");
-const { isExpired, computeExpiry } = require("../lib/expiry");
+const { isExpired, computeExpiry, RENEWAL_PRICE } = require("../lib/expiry");
 const { sendAnswerNotification } = require("../lib/email");
 const { resolveCurrency, localizedPrice } = require("../lib/pricing");
 
@@ -13,6 +13,19 @@ function loadInstance(token) {
   return { instance, template };
 }
 
+// Shared by the mock-checkout page (POST /renew/:token) and the JSON API
+// (POST /api/instances/:token/renew) — one place that actually extends the
+// expiry, so the two entry points can't drift on what "renewing" means.
+function renewInstance(instance) {
+  const base = Math.max(instance.expires_at, Date.now());
+  const newExpiry = computeExpiry(base);
+  db.prepare("UPDATE game_instances SET expires_at = ?, renewed_count = renewed_count + 1 WHERE id = ?").run(
+    newExpiry,
+    instance.id
+  );
+  return newExpiry;
+}
+
 router.get("/play/:token", async (req, res) => {
   const found = loadInstance(req.params.token);
   if (!found) return res.status(404).render("expired", { message: "That link doesn't exist." });
@@ -22,12 +35,10 @@ router.get("/play/:token", async (req, res) => {
     return res.render("already-answered", { instance, template });
   }
   if (isExpired(instance)) {
-    const currency = await resolveCurrency(req);
     return res.render("expired", {
       message: `This game expired on ${new Date(instance.expires_at).toLocaleDateString()}.`,
       token: instance.token,
       canRenew: true,
-      renewPriceDisplay: localizedPrice({ price_egp: 50, price_usd_cents: 100 }, currency),
     });
   }
 
@@ -75,16 +86,31 @@ router.post("/api/play/:token/answer", (req, res) => {
 router.post("/api/instances/:token/renew", (req, res) => {
   const found = loadInstance(req.params.token);
   if (!found) return res.status(404).json({ error: "Not found" });
-  const { instance } = found;
+  res.json({ ok: true, expiresAt: renewInstance(found.instance) });
+});
 
-  const base = Math.max(instance.expires_at, Date.now());
-  const newExpiry = computeExpiry(base);
-  db.prepare("UPDATE game_instances SET expires_at = ?, renewed_count = renewed_count + 1 WHERE id = ?").run(
-    newExpiry,
-    instance.id
-  );
+// A real mock-checkout page (card fields, same look as buying a game)
+// instead of a bare "simulate renewal" button — reads the same as the
+// rest of the site's purchase flow.
+router.get("/renew/:token", async (req, res) => {
+  const found = loadInstance(req.params.token);
+  if (!found) return res.status(404).render("expired", { message: "That link doesn't exist." });
+  const { instance, template } = found;
+  const currency = await resolveCurrency(req);
+  res.render("renew", {
+    instance,
+    template,
+    priceDisplay: localizedPrice(RENEWAL_PRICE, currency),
+  });
+});
 
-  res.json({ ok: true, expiresAt: newExpiry });
+// Mock checkout only, same as /payment/:templateId: never reads the card
+// fields from req.body, just performs the actual renewal.
+router.post("/renew/:token", (req, res) => {
+  const found = loadInstance(req.params.token);
+  if (!found) return res.status(404).render("expired", { message: "That link doesn't exist." });
+  renewInstance(found.instance);
+  res.redirect(`/play/${found.instance.token}`);
 });
 
 module.exports = router;

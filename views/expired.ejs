@@ -9,14 +9,8 @@
       <p class="eyebrow">This link has expired</p>
       <h1 style="font-size: 26px;"><%= message %></h1>
       <% if (typeof canRenew !== 'undefined' && canRenew) { %>
-        <p>Simulate a <%= renewPriceDisplay %> renewal to keep it live for another month.</p>
-        <button class="btn btn-primary" id="renew-btn" type="button">Simulate renewal and continue</button>
-        <script>
-          document.getElementById('renew-btn').addEventListener('click', async () => {
-            const res = await fetch('/api/instances/<%= token %>/renew', { method: 'POST' });
-            if (res.ok) window.location.reload();
-          });
-        </script>
+        <p>Keep it live for another month with a small renewal fee.</p>
+        <a href="/renew/<%= token %>" class="btn btn-primary" style="width: 100%; display: block; margin-top: 8px;">Renew this link</a>
       <% } else { %>
         <a href="/" class="btn btn-secondary" style="margin-top: 16px;">Back to home</a>
       <% } %>
