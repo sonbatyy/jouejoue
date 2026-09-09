@@ -16,6 +16,31 @@ function escapeHtml(str) {
     .replace(/'/g, "&#39;");
 }
 
+// One shared wrapper so every email — answer notifications, contact
+// messages, receipts — reads as the same product instead of each having
+// its own one-off header. Plain inline styles throughout (no <style>
+// block, no flexbox/grid): email clients strip or mangle both.
+function emailShell({ kicker = "JoueJoue", bodyHtml }) {
+  return `
+    <div style="font-family: -apple-system, Segoe UI, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #332a22;">
+      <p style="text-transform: uppercase; letter-spacing: 0.08em; font-size: 12px; font-weight: 700; color: #cf5d3b; margin: 0 0 20px;">${escapeHtml(kicker)}</p>
+      ${bodyHtml}
+      <p style="color: #a89a8d; font-size: 12px; margin: 28px 0 0; padding-top: 16px; border-top: 1px solid #ecdfc9;">A tiny gesture, sent as a game.</p>
+    </div>
+  `;
+}
+
+// The order-summary block reused by both receipt emails — a plain table
+// (not flex/grid) so it survives Outlook's stripped-down CSS support.
+function receiptSummaryRow(label, value) {
+  return `
+    <tr>
+      <td style="padding: 10px 0; border-bottom: 1px solid #ecdfc9; font-size: 15px; color: #6f6258;">${escapeHtml(label)}</td>
+      <td style="padding: 10px 0; border-bottom: 1px solid #ecdfc9; font-size: 15px; font-weight: 700; text-align: right;">${escapeHtml(value)}</td>
+    </tr>
+  `;
+}
+
 let resendClient = null;
 function getResendClient() {
   if (!resendClient) {
@@ -27,10 +52,10 @@ function getResendClient() {
   return resendClient;
 }
 
-// Fire-and-forget on purpose: whatever triggered this (an answer, a contact
-// message) is already saved by the time this is called, so a slow or
-// failed email should never hold up or fail the visitor's own request.
-// Errors are caught and logged here, not thrown.
+// Fire-and-forget on purpose: whatever triggered this (an answer, a
+// purchase, a contact message) is already saved by the time this is
+// called, so a slow or failed email should never hold up or fail the
+// visitor's own request. Errors are caught and logged here, not thrown.
 async function sendViaResend({ to, subject, html, replyTo }) {
   const fromAddress = process.env.EMAIL_FROM_ADDRESS || "answers@joue-joue.com";
   try {
@@ -68,19 +93,17 @@ function sendAnswerNotification({ buyerEmail, templateName, recipientName, quest
     sendViaResend({
       to: buyerEmail,
       subject,
-      html: `
-        <div style="font-family: -apple-system, Segoe UI, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #332a22;">
-          <p style="text-transform: uppercase; letter-spacing: 0.08em; font-size: 12px; font-weight: 700; color: #cf5d3b; margin: 0 0 8px;">JoueJoue</p>
+      html: emailShell({
+        bodyHtml: `
           <h1 style="font-size: 22px; margin: 0 0 16px; line-height: 1.3;">${escapeHtml(recipientName)} answered your question!</h1>
           <p style="margin: 0 0 4px; color: #6f6258; font-size: 14px;">You asked (via ${escapeHtml(templateName)}):</p>
           <p style="margin: 0 0 20px; font-size: 16px;">${escapeHtml(question)}</p>
-          <div style="background: #fbf1e6; border-radius: 12px; padding: 16px 18px; margin-bottom: 20px;">
+          <div style="background: #fbf1e6; border-radius: 12px; padding: 16px 18px;">
             <p style="margin: 0 0 4px; color: #6f6258; font-size: 14px;">Their answer:</p>
             <p style="margin: 0; font-size: 18px; font-weight: 700;">${escapeHtml(answer)}</p>
           </div>
-          <p style="color: #a89a8d; font-size: 12px; margin: 0;">Sent by JoueJoue — a tiny gesture, sent as a game.</p>
-        </div>
-      `,
+        `,
+      }),
     });
     return;
   }
@@ -106,16 +129,16 @@ function sendContactNotification({ name, email, message }) {
       to,
       subject,
       replyTo: email, // reply in your mail client and it reaches the sender, not answers@
-      html: `
-        <div style="font-family: -apple-system, Segoe UI, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #332a22;">
-          <p style="text-transform: uppercase; letter-spacing: 0.08em; font-size: 12px; font-weight: 700; color: #cf5d3b; margin: 0 0 8px;">JoueJoue &middot; Contact form</p>
+      html: emailShell({
+        kicker: "JoueJoue · Contact form",
+        bodyHtml: `
           <h1 style="font-size: 22px; margin: 0 0 16px;">${escapeHtml(name)}</h1>
           <p style="margin: 0 0 20px; color: #6f6258; font-size: 14px;">${escapeHtml(email)} &mdash; reply directly to this email to reach them.</p>
           <div style="background: #fbf1e6; border-radius: 12px; padding: 16px 18px;">
             <p style="margin: 0; font-size: 16px; white-space: pre-wrap;">${escapeHtml(message)}</p>
           </div>
-        </div>
-      `,
+        `,
+      }),
     });
     return;
   }
@@ -123,4 +146,64 @@ function sendContactNotification({ name, email, message }) {
   logStub("contact message", [["To", to], ["Name", name], ["Email", email], ["Message", message]]);
 }
 
-module.exports = { sendAnswerNotification, sendContactNotification };
+// Sent right after a bank-game purchase completes (server/routes/purchase.js,
+// POST /api/instances) — the mock-checkout equivalent of an order receipt.
+function sendPurchaseReceipt({ buyerEmail, templateName, recipientName, priceDisplay, shareUrl }) {
+  const mode = process.env.EMAIL_MODE || "console";
+  const subject = `Receipt: ${templateName} for ${recipientName}`;
+
+  if (mode === "resend") {
+    sendViaResend({
+      to: buyerEmail,
+      subject,
+      html: emailShell({
+        kicker: "JoueJoue · Receipt",
+        bodyHtml: `
+          <h1 style="font-size: 22px; margin: 0 0 16px;">Thanks — it's on its way to ${escapeHtml(recipientName)}.</h1>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            ${receiptSummaryRow(templateName, priceDisplay)}
+            ${receiptSummaryRow("For", recipientName)}
+            ${receiptSummaryRow("Live for", "1 month")}
+          </table>
+          <p style="margin: 0 0 6px; color: #6f6258; font-size: 14px;">Their link:</p>
+          <p style="margin: 0 0 20px; font-size: 15px; word-break: break-all;"><a href="${escapeHtml(shareUrl)}" style="color: #cf5d3b;">${escapeHtml(shareUrl)}</a></p>
+          <p style="color: #a89a8d; font-size: 12px; margin: 0;">This is a prototype — no card processor is connected and no money actually moved.</p>
+        `,
+      }),
+    });
+    return;
+  }
+
+  logStub("purchase receipt", [["To", buyerEmail], ["Game", templateName], ["For", recipientName], ["Price", priceDisplay], ["Link", shareUrl]]);
+}
+
+// Sent right after a renewal completes (server/routes/play.js, POST /renew/:token).
+function sendRenewalReceipt({ buyerEmail, templateName, recipientName, priceDisplay, newExpiryDate, shareUrl }) {
+  const mode = process.env.EMAIL_MODE || "console";
+  const subject = `Receipt: ${templateName} renewed for another month`;
+
+  if (mode === "resend") {
+    sendViaResend({
+      to: buyerEmail,
+      subject,
+      html: emailShell({
+        kicker: "JoueJoue · Receipt",
+        bodyHtml: `
+          <h1 style="font-size: 22px; margin: 0 0 16px;">Renewed — ${escapeHtml(recipientName)}'s link stays live.</h1>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            ${receiptSummaryRow(`${templateName} — renewal`, priceDisplay)}
+            ${receiptSummaryRow("New expiry", newExpiryDate)}
+          </table>
+          <p style="margin: 0 0 6px; color: #6f6258; font-size: 14px;">The link, unchanged:</p>
+          <p style="margin: 0 0 20px; font-size: 15px; word-break: break-all;"><a href="${escapeHtml(shareUrl)}" style="color: #cf5d3b;">${escapeHtml(shareUrl)}</a></p>
+          <p style="color: #a89a8d; font-size: 12px; margin: 0;">This is a prototype — no card processor is connected and no money actually moved.</p>
+        `,
+      }),
+    });
+    return;
+  }
+
+  logStub("renewal receipt", [["To", buyerEmail], ["Game", templateName], ["For", recipientName], ["Price", priceDisplay], ["New expiry", newExpiryDate], ["Link", shareUrl]]);
+}
+
+module.exports = { sendAnswerNotification, sendContactNotification, sendPurchaseReceipt, sendRenewalReceipt };

@@ -1,16 +1,16 @@
-// Floating emoji background for the games page — a lazy wander loop behind
-// the page content. Fixed to the viewport (like .page-bg) so it roams the
-// whole screen, not just one section. Tapping one freezes it in place and
-// pops a confetti burst from GameLib (shared.js), reusing the exact same
-// burst that fires when someone wins a game elsewhere on the site.
+// Floating emoji background — a lazy wander loop behind every page's
+// content (views/layout-partials/page-bg.ejs). Fixed to the viewport (like
+// .page-bg) so it roams the whole screen, not just one section. Tapping one
+// freezes it in place and pops a confetti burst from GameLib (shared.js),
+// reusing the exact same burst that fires when someone wins a game.
 (function () {
-  const field = document.getElementById("gamesEmojiField");
+  const field = document.getElementById("pageEmojiField");
   if (!field || !window.GameLib) return;
 
   const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const EMOJIS = ["🎮", "🍰", "🦆", "🐦", "🍓", "🎉", "✨", "🎈", "🥳", "🍭"];
-  const COUNT = 24;
+  const COUNT = 14; // was 24 on the games page alone — a little less, now that it's everywhere
 
   // A random waypoint in viewport units, so the wander distance scales with
   // screen size instead of being a fixed pixel amount that reads as huge on

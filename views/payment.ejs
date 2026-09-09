@@ -4,10 +4,7 @@
   <%- include('layout-partials/head', { title: 'Payment · ' + template.name }) %>
 </head>
 <body>
-  <div class="page-bg">
-    <div class="page-bg__blob page-bg__blob--1"></div>
-    <div class="page-bg__blob page-bg__blob--2"></div>
-  </div>
+  <%- include('layout-partials/page-bg') %>
 
   <div class="container">
     <%- include('layout-partials/nav') %>
@@ -67,5 +64,7 @@
   </script>
   <script src="/js/currency-select.js"></script>
   <script src="/js/card-input.js"></script>
+  <script src="/js/games/shared.js"></script>
+  <script src="/js/emoji-field.js"></script>
 </body>
 </html>

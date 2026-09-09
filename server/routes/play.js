@@ -1,7 +1,7 @@
 const express = require("express");
 const db = require("../db");
 const { isExpired, computeExpiry, RENEWAL_PRICE } = require("../lib/expiry");
-const { sendAnswerNotification } = require("../lib/email");
+const { sendAnswerNotification, sendRenewalReceipt } = require("../lib/email");
 const { resolveCurrency, localizedPrice } = require("../lib/pricing");
 
 const router = express.Router();
@@ -106,11 +106,23 @@ router.get("/renew/:token", async (req, res) => {
 
 // Mock checkout only, same as /payment/:templateId: never reads the card
 // fields from req.body, just performs the actual renewal.
-router.post("/renew/:token", (req, res) => {
+router.post("/renew/:token", async (req, res) => {
   const found = loadInstance(req.params.token);
   if (!found) return res.status(404).render("expired", { message: "That link doesn't exist." });
-  renewInstance(found.instance);
-  res.redirect(`/play/${found.instance.token}`);
+  const { instance, template } = found;
+  const newExpiry = renewInstance(instance);
+
+  const currency = await resolveCurrency(req);
+  sendRenewalReceipt({
+    buyerEmail: instance.buyer_email,
+    templateName: template.name,
+    recipientName: instance.recipient_name,
+    priceDisplay: localizedPrice(RENEWAL_PRICE, currency),
+    newExpiryDate: new Date(newExpiry).toLocaleDateString(),
+    shareUrl: `${req.protocol}://${req.get("host")}/play/${instance.token}`,
+  });
+
+  res.redirect(`/play/${instance.token}`);
 });
 
 module.exports = router;

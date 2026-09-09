@@ -3,6 +3,7 @@ const db = require("../db");
 const { generatePersonalizedToken } = require("../lib/tokens");
 const { computeExpiry } = require("../lib/expiry");
 const { resolveCurrency, withLocalizedPrice, allLocalizedPrices, localizedPrice, SWITCHABLE_CURRENCIES } = require("../lib/pricing");
+const { sendPurchaseReceipt } = require("../lib/email");
 
 const router = express.Router();
 
@@ -46,7 +47,7 @@ router.get("/buy/:templateId", async (req, res) => {
   res.render("buy", { template: withLocalizedPrice(template, currency) });
 });
 
-router.post("/api/instances", (req, res) => {
+router.post("/api/instances", async (req, res) => {
   const templateId = Number(req.body.templateId);
   const buyerEmail = String(req.body.buyerEmail || "").trim();
   const recipientName = String(req.body.recipientName || "").trim();
@@ -70,6 +71,15 @@ router.post("/api/instances", (req, res) => {
     INSERT INTO game_instances (template_id, token, buyer_email, recipient_name, question, status, created_at, expires_at)
     VALUES (?, ?, ?, ?, ?, 'pending', ?, ?)
   `).run(template.id, token, buyerEmail, recipientName, question, now, computeExpiry(now));
+
+  const currency = await resolveCurrency(req);
+  sendPurchaseReceipt({
+    buyerEmail,
+    templateName: template.name,
+    recipientName,
+    priceDisplay: localizedPrice(template, currency),
+    shareUrl: `${req.protocol}://${req.get("host")}/play/${token}`,
+  });
 
   res.redirect(`/confirmation/${token}`);
 });

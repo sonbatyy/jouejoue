@@ -4,10 +4,7 @@
   <%- include('layout-partials/head', { title: 'Buy · ' + template.name }) %>
 </head>
 <body>
-  <div class="page-bg">
-    <div class="page-bg__blob page-bg__blob--1"></div>
-    <div class="page-bg__blob page-bg__blob--2"></div>
-  </div>
+  <%- include('layout-partials/page-bg') %>
 
   <div class="container">
     <%- include('layout-partials/nav') %>
@@ -43,5 +40,7 @@
 
     <%- include('layout-partials/footer') %>
   </div>
+  <script src="/js/games/shared.js"></script>
+  <script src="/js/emoji-field.js"></script>
 </body>
 </html>
