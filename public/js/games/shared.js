@@ -97,7 +97,7 @@ window.GameLib = (function () {
     overlay.className = "overlay";
     overlay.innerHTML = `
       <div class="modal-box">
-        <h2 class="modal-heading"><span aria-hidden="true">🎉</span> Bravo <span class="modal-heading__name wash-text"></span></h2>
+        <h2 class="modal-heading">Bravo <span class="modal-heading__name wash-text"></span>! <span aria-hidden="true">🎉</span></h2>
         <p class="modal-question"></p>
         <form class="answer-form">
           <input type="text" placeholder="Type your answer..." autocomplete="off" required />
@@ -108,7 +108,12 @@ window.GameLib = (function () {
         </div>
       </div>
     `;
-    overlay.querySelector(".modal-heading__name").textContent = name || "";
+    const nameEl = overlay.querySelector(".modal-heading__name");
+    if (name) {
+      nameEl.textContent = name;
+    } else {
+      nameEl.remove(); // "Bravo !" reads oddly with nothing to fill the gap
+    }
     overlay.querySelector(".modal-question").textContent = question;
     document.body.appendChild(overlay);
 
