@@ -825,6 +825,7 @@ html.js [data-reveal-stagger].is-visible > * {
 .game-card--brown { --card-tone: var(--color-tone-brown); }
 .game-card--black { --card-tone: var(--color-ink); }
 .game-card__icon {
+  align-self: center;
   font-size: 40px;
   line-height: 1;
   margin-bottom: 2px;
