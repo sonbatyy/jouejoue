@@ -13,25 +13,22 @@
     <%- include('layout-partials/nav') %>
 
     <section class="section-tight" style="text-align: center;">
-      <div class="page-stickers" aria-hidden="true">
-        <span class="page-sticker page-sticker--1">🕹️</span>
-        <span class="page-sticker page-sticker--2">✨</span>
-      </div>
       <p class="eyebrow">Try before you buy</p>
       <h1 style="font-size: 34px;">Pick one to try.</h1>
-      <p style="max-width: 480px; margin: 10px auto 0;">No account, no charge — see exactly what they'll play before you send it. One demo, one try, then you decide.</p>
+      <p style="max-width: 480px; margin: 10px auto 0;">No account, no charge. See exactly what they'll play before you send it. One demo, one try, then you decide.</p>
     </section>
 
     <section class="section-tight">
       <div class="catalog-grid" data-reveal-stagger>
         <% const cardTones = ['', 'game-card--brown', 'game-card--black']; %>
         <% games.forEach(function(game, i) { %>
-          <div class="game-card lift <%= cardTones[i % cardTones.length] %>">
-            <h3><%= game.icon %> <%= game.name %></h3>
+          <div class="game-card demo-card lift <%= cardTones[i % cardTones.length] %>">
+            <span class="game-card__icon"><%= game.icon %></span>
+            <h3><%= game.name %></h3>
             <p class="game-card__description"><%= game.teaser %></p>
             <div class="game-card__footer">
               <div class="game-card__price"><%= game.priceDisplay %> to buy</div>
-              <a href="/demo/<%= game.slug %>" class="btn btn-primary">Try this demo</a>
+              <a href="/demo/<%= game.slug %>" class="btn btn-primary btn-fun">Try this demo <span class="btn-fun__icon">▶</span></a>
             </div>
           </div>
         <% }); %>

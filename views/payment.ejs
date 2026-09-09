@@ -32,7 +32,7 @@
               <% }); %>
             </select>
           </div>
-          <p class="form-fineprint" style="margin: 6px 0 0;">Priced in <%= currency %> based on your location — pick another currency just to see the equivalent.</p>
+          <p class="form-fineprint" style="margin: 6px 0 0;">Priced in <%= currency %> based on your location. Pick another currency just to see the equivalent.</p>
         </div>
 
         <form method="POST" action="/payment/<%= template.id %>" autocomplete="off">
@@ -54,7 +54,7 @@
           </div>
 
           <button type="submit" class="btn btn-primary wash" id="payButton">Pay <%= template.priceDisplay %></button>
-          <p class="form-fineprint">This is a prototype. No card processor is connected, nothing you type here is saved, and no money moves. You're always actually charged in <%= currency %> — other currencies shown are just equivalents.</p>
+          <p class="form-fineprint">This is a prototype. No card processor is connected, nothing you type here is saved, and no money moves. You're always actually charged in <%= currency %>. Other currencies shown are just equivalents.</p>
         </form>
       </div>
     </section>

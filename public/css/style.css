@@ -90,12 +90,22 @@ img, svg {
 }
 
 .section {
-  padding-block: clamp(32px, 5vw, 64px);
+  padding-block: clamp(24px, 4vw, 48px);
   position: relative;
 }
 
 .section-tight {
-  padding-block: clamp(20px, 3vw, 36px);
+  padding-block: clamp(16px, 2.5vw, 28px);
+}
+
+/* A visible line between stacked sections instead of relying on whitespace
+   alone to separate them — the hero (first section on a page) never gets
+   one, since there's nothing above it to divide from. */
+.section + .section,
+.section + .section-tight,
+.section-tight + .section,
+.section-tight + .section-tight {
+  border-top: 1px solid var(--color-border);
 }
 
 .eyebrow {
@@ -522,38 +532,6 @@ html.js [data-reveal-stagger].is-visible > * {
   }
 }
 
-/* Same sticker idea as the hero, dialed way down — a couple of small icons
-   above a page's own heading, not a repeat of the hero's full four-item
-   row. A light echo of the same personality across the site, not a motif
-   plastered everywhere. */
-.page-stickers {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-.page-sticker {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-card);
-  font-size: 18px;
-  animation: sticker-bob 3.2s ease-in-out infinite;
-}
-.page-sticker--1 { transform: rotate(-7deg); background: var(--color-accent-soft); animation-delay: 0s; }
-.page-sticker--2 { transform: rotate(6deg); background: var(--color-tone-brown-soft); animation-delay: 0.4s; }
-
-@media (prefers-reduced-motion: reduce) {
-  .page-sticker {
-    animation: none;
-  }
-}
-
 /* ============================================================
    How it works — fitout's numbered-step pattern
    ============================================================ */
@@ -790,6 +768,21 @@ html.js [data-reveal-stagger].is-visible > * {
   border-radius: 999px;
   margin-bottom: 8px;
 }
+.tier__icon {
+  display: block;
+  font-size: 32px;
+  line-height: 1;
+  margin: 8px 0 4px;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.tier.lift:hover .tier__icon, .tier.lift:focus-within .tier__icon {
+  transform: scale(1.15) rotate(-8deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tier.lift:hover .tier__icon, .tier.lift:focus-within .tier__icon {
+    transform: none;
+  }
+}
 .tier__price {
   font-size: 28px;
   font-weight: 800;
@@ -831,6 +824,15 @@ html.js [data-reveal-stagger].is-visible > * {
 }
 .game-card--brown { --card-tone: var(--color-tone-brown); }
 .game-card--black { --card-tone: var(--color-ink); }
+.game-card__icon {
+  font-size: 40px;
+  line-height: 1;
+  margin-bottom: 2px;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.demo-card:hover .game-card__icon, .demo-card:focus-within .game-card__icon {
+  transform: scale(1.15) rotate(-8deg);
+}
 .game-card__description {
   min-height: 4.6em;
 }
@@ -841,6 +843,34 @@ html.js [data-reveal-stagger].is-visible > * {
   flex-direction: column;
   gap: 8px;
 }
+@media (prefers-reduced-motion: reduce) {
+  .demo-card:hover .game-card__icon, .demo-card:focus-within .game-card__icon {
+    transform: none;
+  }
+}
+
+/* A slightly louder button for the one action a demo page really wants
+   you to take — bigger than the standard .btn, with a little icon that
+   nudges forward on hover so it feels like a "go" button, not just text. */
+.btn-fun {
+  padding: 16px 28px;
+  font-size: 17px;
+  gap: 10px;
+}
+.btn-fun__icon {
+  display: inline-block;
+  font-size: 12px;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.btn-fun:hover .btn-fun__icon, .btn-fun:focus-visible .btn-fun__icon {
+  transform: translateX(4px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-fun:hover .btn-fun__icon, .btn-fun:focus-visible .btn-fun__icon {
+    transform: none;
+  }
+}
+
 .game-card__price {
   font-weight: 700;
   color: var(--card-tone, var(--color-accent));
