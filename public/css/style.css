@@ -1211,15 +1211,17 @@ textarea {
 }
 
 /* ============================================================
-   Floating emoji background — games page only. Sits behind the
-   catalog grid (z-index 0 vs the grid's 1), each item drifting in a
-   lazy loop; tapping one freezes it and pops a confetti burst.
+   Floating emoji background — games page only. A fixed, full-
+   viewport layer like .page-bg (same z-index tier, so it never
+   covers nav/headings/text — only shows through gaps and behind
+   translucent areas), each item wandering a wide, randomized path;
+   tapping one freezes it and pops a confetti burst.
    ============================================================ */
 .emoji-field {
-  position: absolute;
+  position: fixed;
   inset: 0;
   overflow: hidden;
-  z-index: 0;
+  z-index: -1;
   pointer-events: none;
 }
 .emoji-field__item {
@@ -1237,11 +1239,15 @@ textarea {
 .emoji-field__item.is-paused {
   animation-play-state: paused;
 }
+/* Waypoints come from per-item CSS custom properties (set in JS) so every
+   emoji wanders its own randomized path across the viewport instead of
+   all following one identical loop just offset in time. */
 @keyframes emoji-drift {
   0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  25% { transform: translate(16px, -20px) rotate(8deg); }
-  50% { transform: translate(-12px, 10px) rotate(-6deg); }
-  75% { transform: translate(18px, 16px) rotate(5deg); }
+  20% { transform: translate(var(--dx1), var(--dy1)) rotate(14deg); }
+  40% { transform: translate(var(--dx2), var(--dy2)) rotate(-10deg); }
+  60% { transform: translate(var(--dx3), var(--dy3)) rotate(12deg); }
+  80% { transform: translate(var(--dx4), var(--dy4)) rotate(-8deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {

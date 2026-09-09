@@ -8,6 +8,7 @@
     <div class="page-bg__blob page-bg__blob--1"></div>
     <div class="page-bg__blob page-bg__blob--2"></div>
   </div>
+  <div class="emoji-field" id="gamesEmojiField" aria-hidden="true"></div>
 
   <div class="container">
     <%- include('layout-partials/nav') %>
@@ -18,8 +19,7 @@
       <p style="max-width: 480px; margin: 10px auto 0;">Every game plays in under a minute. Not sure which one? <a href="/demo" style="color: var(--color-accent); font-weight: 700; text-decoration: none;">Try a demo</a> before you decide.</p>
     </section>
 
-    <section class="section-tight" style="position: relative;">
-      <div class="emoji-field" id="gamesEmojiField" aria-hidden="true"></div>
+    <section class="section-tight">
       <div class="catalog-grid" data-reveal-stagger>
         <% const cardTones = ['', 'game-card--brown', 'game-card--black']; %>
         <% catalogGames.forEach(function(game, i) { %>
