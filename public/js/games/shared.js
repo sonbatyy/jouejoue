@@ -55,6 +55,39 @@ window.GameLib = (function () {
     }
   }
 
+  // A longer, gentler rain of confetti falling from the top of the screen
+  // to the bottom, spawned continuously for `duration` — the "played in the
+  // background for a while" version, for the actual "you won" moment,
+  // distinct from the instant burst() used for a quick tap-triggered pop.
+  function confettiRain({ duration = 3400, intervalMs = 110 } = {}) {
+    if (prefersReducedMotion()) return;
+    const endAt = Date.now() + duration;
+    function spawnOne() {
+      const piece = document.createElement("div");
+      piece.className = "confetti-piece";
+      const startX = Math.random() * window.innerWidth;
+      const drift = Math.random() * 160 - 80;
+      piece.style.left = `${startX}px`;
+      piece.style.top = "-20px";
+      piece.style.setProperty("--dx", `${drift}px`);
+      piece.style.setProperty("--dy", `${window.innerHeight + 60}px`);
+      piece.style.setProperty("--rot", `${Math.random() * 720 - 360}deg`);
+      piece.style.background = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+      piece.style.animationDuration = `${2.6 + Math.random() * 1.8}s`;
+      piece.style.animationTimingFunction = "linear";
+      document.body.appendChild(piece);
+      piece.addEventListener("animationend", () => piece.remove());
+    }
+    for (let i = 0; i < 6; i++) spawnOne(); // an immediate first handful, not a slow trickle-in
+    const timer = setInterval(() => {
+      if (Date.now() >= endAt) {
+        clearInterval(timer);
+        return;
+      }
+      spawnOne();
+    }, intervalMs);
+  }
+
   // Builds the "you caught it" modal. The question text and recipient name
   // are set via textContent (never innerHTML) since they're untrusted
   // buyer-supplied input rendered to a different visitor (the recipient) —
@@ -64,7 +97,7 @@ window.GameLib = (function () {
     overlay.className = "overlay";
     overlay.innerHTML = `
       <div class="modal-box">
-        <h2 class="modal-heading"></h2>
+        <h2 class="modal-heading"><span aria-hidden="true">🎉</span> Bravo <span class="modal-heading__name wash-text"></span></h2>
         <p class="modal-question"></p>
         <form class="answer-form">
           <input type="text" placeholder="Type your answer..." autocomplete="off" required />
@@ -75,7 +108,7 @@ window.GameLib = (function () {
         </div>
       </div>
     `;
-    overlay.querySelector(".modal-heading").textContent = name ? `Bravo ${name}` : "Bravo";
+    overlay.querySelector(".modal-heading__name").textContent = name || "";
     overlay.querySelector(".modal-question").textContent = question;
     document.body.appendChild(overlay);
 
@@ -109,5 +142,5 @@ window.GameLib = (function () {
     return overlay;
   }
 
-  return { randomPosition, placeAt, getPointer, createSuccessModal, confetti };
+  return { randomPosition, placeAt, getPointer, createSuccessModal, confetti, confettiRain };
 })();

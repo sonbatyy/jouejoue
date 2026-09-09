@@ -6,7 +6,7 @@
   // to a different game afterward. Win or lose both land here: the whole
   // point of a demo is to feel the game for a few seconds, then decide.
   function showPayPrompt(outcome) {
-    if (outcome === "won") window.GameLib.confetti();
+    if (outcome === "won") window.GameLib.confettiRain();
     const overlay = document.createElement("div");
     overlay.className = "overlay";
     const heading = outcome === "lost" ? "That's the demo" : "Nailed it!";

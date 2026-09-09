@@ -24,6 +24,7 @@
         <% const cardTones = ['', 'game-card--brown', 'game-card--black']; %>
         <% catalogGames.forEach(function(game, i) { %>
           <div class="game-card lift <%= cardTones[i % cardTones.length] %>">
+            <span class="game-card__icon"><%= game.icon %></span>
             <h3><%= game.name %></h3>
             <p class="game-card__description"><%= game.description %></p>
             <div class="game-card__footer">
@@ -33,6 +34,7 @@
           </div>
         <% }); %>
         <div class="game-card lift <%= cardTones[catalogGames.length % cardTones.length] %>">
+          <span class="game-card__icon">✨</span>
           <h3>Something else in mind?</h3>
           <p class="game-card__description">Tell us what you want the game to be and what it's for.</p>
           <div class="game-card__footer">

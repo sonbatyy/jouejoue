@@ -656,6 +656,13 @@ html.js [data-reveal-stagger].is-visible > * {
     align-items: center;
     gap: 12px;
   }
+  /* Explicit rather than relying on grid auto-fit to collapse to one
+     column on its own — one full-width card per row reads as a single
+     centered column, matching the footer text's centered width, instead
+     of two narrower cards sitting slightly off from center. */
+  .next-strip {
+    grid-template-columns: 1fr;
+  }
 }
 .trust-item {
   display: inline-flex;
@@ -856,7 +863,7 @@ html.js [data-reveal-stagger].is-visible > * {
   margin-bottom: 2px;
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.demo-card:hover .game-card__icon, .demo-card:focus-within .game-card__icon {
+.game-card.lift:hover .game-card__icon, .game-card.lift:focus-within .game-card__icon {
   transform: scale(1.15) rotate(-8deg);
 }
 .game-card__description {
@@ -870,7 +877,7 @@ html.js [data-reveal-stagger].is-visible > * {
   gap: 8px;
 }
 @media (prefers-reduced-motion: reduce) {
-  .demo-card:hover .game-card__icon, .demo-card:focus-within .game-card__icon {
+  .game-card.lift:hover .game-card__icon, .game-card.lift:focus-within .game-card__icon {
     transform: none;
   }
 }

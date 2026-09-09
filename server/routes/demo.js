@@ -1,6 +1,7 @@
 const express = require("express");
 const db = require("../db");
 const { resolveCurrency, withLocalizedPrice } = require("../lib/pricing");
+const { GAME_ICONS } = require("../lib/gameIcons");
 
 const router = express.Router();
 
@@ -17,13 +18,6 @@ const DEMO_TEASERS = {
   "flappy-bird": "Tap to flap. Thread the gaps, reach 20.",
   cooking: "Watch the sky. Catch the right one, don't blink.",
 };
-const DEMO_ICONS = {
-  "cake-catch": "🍰",
-  "duck-catch": "🦆",
-  "flappy-bird": "🐦",
-  cooking: "🍓",
-};
-
 // Choose ONE game to try — no slug in the URL yet. A demo is meant to be a
 // single, quick taste of what buying gets someone, not an arcade you can
 // loop through picking a different game every time you finish one.
@@ -36,7 +30,7 @@ router.get("/demo", async (req, res) => {
   const currency = await resolveCurrency(req);
   const games = VALID_SLUGS.filter((slug) => bySlug[slug]).map((slug) => ({
     ...withLocalizedPrice(bySlug[slug], currency),
-    icon: DEMO_ICONS[slug],
+    icon: GAME_ICONS[slug],
     teaser: DEMO_TEASERS[slug],
   }));
   res.render("demo-picker", { games });
