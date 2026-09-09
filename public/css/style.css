@@ -656,13 +656,6 @@ html.js [data-reveal-stagger].is-visible > * {
     align-items: center;
     gap: 12px;
   }
-  /* Explicit rather than relying on grid auto-fit to collapse to one
-     column on its own — one full-width card per row reads as a single
-     centered column, matching the footer text's centered width, instead
-     of two narrower cards sitting slightly off from center. */
-  .next-strip {
-    grid-template-columns: 1fr;
-  }
 }
 .trust-item {
   display: inline-flex;
@@ -688,6 +681,30 @@ html.js [data-reveal-stagger].is-visible > * {
   gap: 16px;
   max-width: 720px;
   margin-inline: auto;
+}
+@media (max-width: 640px) {
+  /* A swipeable one-card-at-a-time carousel instead of squeezing two
+     cards into one row (or stacking them full-width) — each card is 86%
+     of the viewport, snapped to center, with a deliberate peek of the
+     next card's edge as the visual cue that there's more to swipe to. */
+  .next-strip {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 18px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 12px;
+    margin-inline: -18px;
+    padding-inline: 18px;
+  }
+  .next-strip::-webkit-scrollbar {
+    display: none;
+  }
+  .next-card {
+    flex: 0 0 86%;
+    scroll-snap-align: center;
+  }
 }
 .next-card {
   position: relative;
