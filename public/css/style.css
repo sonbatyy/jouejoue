@@ -469,6 +469,10 @@ html.js [data-reveal-stagger].is-visible > * {
   max-width: 720px;
   margin: 0 auto;
 }
+.hero__subhead {
+  margin-top: 16px;
+  font-size: 17px;
+}
 .hero__actions {
   display: flex;
   gap: 12px;
@@ -523,6 +527,40 @@ html.js [data-reveal-stagger].is-visible > * {
   }
   .hero__stickers {
     gap: 10px;
+    margin-bottom: 12px;
+  }
+  /* A tighter, denser rhythm on phones — less side margin, smaller
+     headline/body sizes, less vertical air between sections — instead of
+     relying on someone pinch-zooming out to get a page that reads as one
+     tidy screenful rather than a lot of scroll. Zoom is now locked off
+     (see the viewport meta tag), so this has to be the real default. */
+  .container {
+    padding-inline: 18px;
+  }
+  .hero h1 {
+    font-size: clamp(26px, 7.5vw, 34px);
+  }
+  .hero__subhead {
+    font-size: 15px;
+  }
+  .section {
+    padding-block: clamp(16px, 5vw, 32px);
+  }
+  .section-tight {
+    padding-block: clamp(10px, 3vw, 18px);
+  }
+  .trust-strip {
+    gap: 9px;
+  }
+  .next-strip {
+    gap: 10px;
+  }
+  /* The bigger .btn padding (from making CTAs "more inciting") no longer
+     fits two hero buttons on one line under ~380px — they wrapped to a
+     full-width stack instead of sitting side by side. */
+  .hero__actions .btn {
+    padding: 12px 18px;
+    font-size: 15px;
   }
 }
 
