@@ -24,6 +24,37 @@ window.GameLib = (function () {
     return { x: e.clientX, y: e.clientY };
   }
 
+  const CONFETTI_COLORS = ["#cf5d3b", "#8a5a3c", "#f7ded2", "#ecdcc9", "#332a22"];
+  const prefersReducedMotion = () =>
+    window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // A small celebratory burst — used on every "you won" moment (real play
+  // and demo alike), and on tapping a floating emoji on the games page.
+  // Plain divs animated with CSS, no canvas/library: cheap enough to spawn
+  // a few dozen and let them clean themselves up via animationend.
+  function confetti({ x, y, count = 28 } = {}) {
+    if (prefersReducedMotion()) return;
+    const originX = x ?? window.innerWidth / 2;
+    const originY = y ?? window.innerHeight / 3;
+    for (let i = 0; i < count; i++) {
+      const piece = document.createElement("div");
+      piece.className = "confetti-piece";
+      const angle = Math.random() * Math.PI * 2;
+      const distance = 60 + Math.random() * 140;
+      const dx = Math.cos(angle) * distance;
+      const dy = Math.sin(angle) * distance * 0.4 + 220 + Math.random() * 120;
+      piece.style.left = `${originX}px`;
+      piece.style.top = `${originY}px`;
+      piece.style.setProperty("--dx", `${dx}px`);
+      piece.style.setProperty("--dy", `${dy}px`);
+      piece.style.setProperty("--rot", `${Math.random() * 720 - 360}deg`);
+      piece.style.background = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+      piece.style.animationDuration = `${1.1 + Math.random() * 0.7}s`;
+      document.body.appendChild(piece);
+      piece.addEventListener("animationend", () => piece.remove());
+    }
+  }
+
   // Builds the "you caught it" modal. The question text and recipient name
   // are set via textContent (never innerHTML) since they're untrusted
   // buyer-supplied input rendered to a different visitor (the recipient) —
@@ -78,5 +109,5 @@ window.GameLib = (function () {
     return overlay;
   }
 
-  return { randomPosition, placeAt, getPointer, createSuccessModal };
+  return { randomPosition, placeAt, getPointer, createSuccessModal, confetti };
 })();

@@ -807,6 +807,8 @@ html.js [data-reveal-stagger].is-visible > * {
    Catalog grid
    ============================================================ */
 .catalog-grid {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 16px;
@@ -1202,6 +1204,66 @@ textarea {
   z-index: 100;
 }
 .overlay.hidden { display: none; }
+
+/* ============================================================
+   Confetti — a small celebratory burst, spawned from JS
+   (GameLib.confetti in shared.js) on any "you won" moment.
+   ============================================================ */
+.confetti-piece {
+  position: fixed;
+  width: 8px;
+  height: 10px;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 300;
+  animation-name: confetti-fall;
+  animation-timing-function: cubic-bezier(0.2, 0.6, 0.4, 1);
+  animation-fill-mode: forwards;
+}
+@keyframes confetti-fall {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; }
+}
+
+/* ============================================================
+   Floating emoji background — games page only. Sits behind the
+   catalog grid (z-index 0 vs the grid's 1), each item drifting in a
+   lazy loop; tapping one freezes it and pops a confetti burst.
+   ============================================================ */
+.emoji-field {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+.emoji-field__item {
+  position: absolute;
+  pointer-events: auto;
+  cursor: pointer;
+  user-select: none;
+  line-height: 1;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.08));
+  animation-name: emoji-drift;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+.emoji-field__item.is-paused {
+  animation-play-state: paused;
+}
+@keyframes emoji-drift {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(16px, -20px) rotate(8deg); }
+  50% { transform: translate(-12px, 10px) rotate(-6deg); }
+  75% { transform: translate(18px, 16px) rotate(5deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .emoji-field__item {
+    animation: none;
+  }
+}
 
 .modal-box {
   background: #fff;

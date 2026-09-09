@@ -16,6 +16,7 @@
   }
 
   function onWin() {
+    window.GameLib.confetti();
     window.GameLib.createSuccessModal({ question, name: recipientName, onSubmit: submitAnswer });
   }
 

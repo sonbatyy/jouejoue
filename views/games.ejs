@@ -18,7 +18,8 @@
       <p style="max-width: 480px; margin: 10px auto 0;">Every game plays in under a minute. Not sure which one? <a href="/demo" style="color: var(--color-accent); font-weight: 700; text-decoration: none;">Try a demo</a> before you decide.</p>
     </section>
 
-    <section class="section-tight">
+    <section class="section-tight" style="position: relative;">
+      <div class="emoji-field" id="gamesEmojiField" aria-hidden="true"></div>
       <div class="catalog-grid" data-reveal-stagger>
         <% const cardTones = ['', 'game-card--brown', 'game-card--black']; %>
         <% catalogGames.forEach(function(game, i) { %>
@@ -45,6 +46,8 @@
     <%- include('layout-partials/footer') %>
   </div>
 
+  <script src="/js/games/shared.js"></script>
+  <script src="/js/emoji-field.js"></script>
   <script src="/js/reveal.js"></script>
 </body>
 </html>
