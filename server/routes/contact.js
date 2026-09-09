@@ -1,5 +1,6 @@
 const express = require("express");
 const db = require("../db");
+const { sendContactNotification } = require("../lib/email");
 
 const router = express.Router();
 
@@ -24,6 +25,8 @@ router.post("/api/contact-messages", (req, res) => {
     message,
     Date.now()
   );
+
+  sendContactNotification({ name, email, message });
 
   res.render("contact-thanks", { name });
 });
