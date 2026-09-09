@@ -206,4 +206,37 @@ function sendRenewalReceipt({ buyerEmail, templateName, recipientName, priceDisp
   logStub("renewal receipt", [["To", buyerEmail], ["Game", templateName], ["For", recipientName], ["Price", priceDisplay], ["New expiry", newExpiryDate], ["Link", shareUrl]]);
 }
 
-module.exports = { sendAnswerNotification, sendContactNotification, sendPurchaseReceipt, sendRenewalReceipt };
+// Sent right after a custom-game request is submitted (server/routes/customRequest.js,
+// POST /api/custom-requests) — this tier is paid up front via /custom-payment/:templateId
+// but has no share link yet, so the receipt confirms the idea/purpose we received instead.
+function sendCustomRequestReceipt({ buyerEmail, templateName, priceDisplay, gameIdea, purpose }) {
+  const mode = process.env.EMAIL_MODE || "console";
+  const subject = `Receipt: ${templateName} request received`;
+
+  if (mode === "resend") {
+    sendViaResend({
+      to: buyerEmail,
+      subject,
+      html: emailShell({
+        kicker: "JoueJoue · Receipt",
+        bodyHtml: `
+          <h1 style="font-size: 22px; margin: 0 0 16px;">Got it — we're building your custom game.</h1>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            ${receiptSummaryRow(templateName, priceDisplay)}
+          </table>
+          <p style="margin: 0 0 6px; color: #6f6258; font-size: 14px;">What you told us:</p>
+          <div style="background: #fbf1e6; border-radius: 12px; padding: 16px 18px; margin-bottom: 20px;">
+            <p style="margin: 0 0 10px; font-size: 15px; white-space: pre-wrap;"><strong>Idea:</strong> ${escapeHtml(gameIdea)}</p>
+            <p style="margin: 0; font-size: 15px; white-space: pre-wrap;"><strong>For:</strong> ${escapeHtml(purpose)}</p>
+          </div>
+          <p style="color: #a89a8d; font-size: 12px; margin: 0;">We'll reply by email with your link once it's ready. This is a prototype — no card processor is connected and no money actually moved.</p>
+        `,
+      }),
+    });
+    return;
+  }
+
+  logStub("custom request receipt", [["To", buyerEmail], ["Game", templateName], ["Price", priceDisplay], ["Idea", gameIdea], ["Purpose", purpose]]);
+}
+
+module.exports = { sendAnswerNotification, sendContactNotification, sendPurchaseReceipt, sendRenewalReceipt, sendCustomRequestReceipt };

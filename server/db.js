@@ -19,6 +19,11 @@ if (!instanceColumns.includes("recipient_name")) {
   db.exec("ALTER TABLE game_instances ADD COLUMN recipient_name TEXT NOT NULL DEFAULT ''");
 }
 
+const customRequestColumns = db.prepare("PRAGMA table_info(custom_game_requests)").all().map((c) => c.name);
+if (!customRequestColumns.includes("template_id")) {
+  db.exec("ALTER TABLE custom_game_requests ADD COLUMN template_id INTEGER REFERENCES game_templates(id)");
+}
+
 // Idempotent per-slug seeding (not "only if the table is empty") so adding a
 // new game template later doesn't require wiping existing instances/orders
 // tied to the templates already there.

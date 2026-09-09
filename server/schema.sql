@@ -27,6 +27,7 @@ CREATE INDEX IF NOT EXISTS idx_game_instances_token ON game_instances(token);
 
 CREATE TABLE IF NOT EXISTS custom_game_requests (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  template_id  INTEGER REFERENCES game_templates(id),  -- which custom tier this went through checkout for
   buyer_email  TEXT NOT NULL,
   game_idea    TEXT NOT NULL,  -- what they want the game to be
   purpose      TEXT NOT NULL,  -- what it's for (the occasion)
