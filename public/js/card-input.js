@@ -19,6 +19,25 @@ document.addEventListener("DOMContentLoaded", () => {
     cardExpiry.addEventListener("input", () => {
       const digits = cardExpiry.value.replace(/\D/g, "").slice(0, 4);
       cardExpiry.value = digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
+
+      // Only judge it once a full MM/YY has been typed — clear any error
+      // while still mid-entry so we're not flashing red at half a date.
+      if (digits.length < 4) {
+        cardExpiry.setCustomValidity("");
+        return;
+      }
+      const month = Number(digits.slice(0, 2));
+      const year = 2000 + Number(digits.slice(2, 4));
+      const now = new Date();
+      const thisMonth = now.getMonth() + 1;
+      const thisYear = now.getFullYear();
+      if (month < 1 || month > 12) {
+        cardExpiry.setCustomValidity("Not a real month");
+      } else if (year < thisYear || (year === thisYear && month < thisMonth)) {
+        cardExpiry.setCustomValidity("This card has already expired");
+      } else {
+        cardExpiry.setCustomValidity("");
+      }
     });
   }
 

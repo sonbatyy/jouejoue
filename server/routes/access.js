@@ -18,7 +18,10 @@ router.post("/access", (req, res) => {
     return res.status(401).render("access", { error: true, redirectTo });
   }
 
-  setCookie(res, COOKIE_NAME, createToken(), { maxAgeMs: 30 * 24 * 60 * 60 * 1000 });
+  // No maxAgeMs: a session cookie, cleared when the browser fully closes —
+  // so the password is asked for again next time the site is opened,
+  // rather than staying remembered for weeks on a given device.
+  setCookie(res, COOKIE_NAME, createToken());
   res.redirect(redirectTo);
 });
 

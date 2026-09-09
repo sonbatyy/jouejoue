@@ -959,6 +959,9 @@ textarea {
 input:focus, textarea:focus {
   border-color: var(--color-accent);
 }
+input:invalid:not(:placeholder-shown) {
+  border-color: #c0392b;
+}
 textarea {
   resize: vertical;
   min-height: 90px;
