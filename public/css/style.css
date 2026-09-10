@@ -475,12 +475,6 @@ html.js [data-reveal-stagger].is-visible > * {
   position: relative;
   padding-block: clamp(28px, 7vh, 72px);
 }
-.lp-hero__logo {
-  width: min(300px, 62vw);
-  height: auto;
-  margin-bottom: clamp(22px, 5vh, 44px);
-  animation: lp-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
 .lp-hero__headline {
   font-size: clamp(38px, 8.5vw, 92px);
   line-height: 1.02;
@@ -513,7 +507,7 @@ html.js [data-reveal-stagger].is-visible > * {
   to   { opacity: 1; transform: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .lp-hero__logo, .lp-hero__headline, .lp-hero__actions { animation: none; }
+  .lp-hero__headline, .lp-hero__actions { animation: none; }
 }
 
 /* Shared section shell */
@@ -670,7 +664,33 @@ html.js [data-reveal-stagger].is-visible > * {
   color: #fff;
 }
 
-/* 6 · Final CTA */
+/* 6 · For companies callout */
+.lp-pro {
+  padding-block: clamp(48px, 10vh, 110px);
+}
+.lp-pro__inner {
+  max-width: 760px;
+  margin: 0 auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 22px;
+  padding: clamp(28px, 4vw, 48px);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  align-items: flex-start;
+}
+.lp-pro__title {
+  font-size: clamp(22px, 3.4vw, 34px);
+  line-height: 1.08;
+  margin: 10px 0 12px;
+}
+.lp-pro__inner p {
+  margin: 0;
+  font-size: 15px;
+}
+
+/* 7 · Final CTA */
 .lp-final {
   text-align: center;
   padding-block: clamp(64px, 13vh, 140px);
