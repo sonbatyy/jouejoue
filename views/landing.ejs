@@ -9,7 +9,7 @@
   <div class="container">
     <%- include('layout-partials/nav') %>
 
-    <section class="section hero">
+    <section class="section hero hero--minimal">
       <div class="hero__stickers" aria-hidden="true">
         <span class="hero__sticker hero__sticker--1">🎂</span>
         <span class="hero__sticker hero__sticker--2">🦆</span>
@@ -17,48 +17,14 @@
         <span class="hero__sticker hero__sticker--4">🍓</span>
       </div>
       <p class="eyebrow">A tiny gesture, sent as a game</p>
-      <h1>Ask them something. Make them <span class="wash-text">play</span> for the answer.</h1>
+      <h1>Turn your question into a game only <span class="wash-text">they</span> can answer.</h1>
       <p class="hero__subhead">
-        A birthday, an apology, a yes or no that matters. Pick a minigame, write your question, send the link, and get emailed the moment they answer.
+        Pick a minigame, write what you want to ask, send the link. They play, then answer — straight to your inbox.
       </p>
-      <div class="hero__actions">
-        <a href="/demo" class="btn btn-primary">Try a free demo</a>
-        <a href="/games" class="btn btn-secondary">Browse games</a>
+      <div class="hero__actions hero__actions--big">
+        <a href="/demo" class="btn btn-primary btn-lg">Try a free demo</a>
+        <a href="/games" class="btn btn-secondary btn-lg">Browse games</a>
       </div>
-    </section>
-
-    <section class="section-tight trust-strip" data-reveal-stagger>
-      <div class="trust-item">
-        <span class="trust-item__icon">✓</span>
-        No account needed
-      </div>
-      <div class="trust-item">
-        <span class="trust-item__icon">✓</span>
-        A private link, just for them
-      </div>
-      <div class="trust-item">
-        <span class="trust-item__icon">✓</span>
-        Nothing charged until checkout
-      </div>
-      <div class="trust-item">
-        <span class="trust-item__icon">✓</span>
-        Their answer lands straight in your inbox
-      </div>
-    </section>
-
-    <section class="section-tight next-strip" data-reveal>
-      <a href="/how-it-works" class="next-card lift">
-        <span class="next-card__eyebrow">01 · New here?</span>
-        <h3>See how it works</h3>
-        <p>Four steps, two minutes, one question.</p>
-        <span class="next-card__arrow">→</span>
-      </a>
-      <a href="/pricing" class="next-card lift">
-        <span class="next-card__eyebrow">02 · Know you want in?</span>
-        <h3>Check pricing</h3>
-        <p>Cheap on purpose. It's a gesture, not a purchase.</p>
-        <span class="next-card__arrow">→</span>
-      </a>
     </section>
 
     <%- include('layout-partials/footer') %>

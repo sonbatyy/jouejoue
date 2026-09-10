@@ -175,6 +175,19 @@ function initFlappyBird({ containerEl, onWin, onLose }) {
     e.preventDefault();
     flap();
   });
+  // iOS Safari's double-tap-to-zoom gesture is detected from touchend timing
+  // and isn't reliably suppressed by touch-action CSS alone (a long-standing
+  // WebKit quirk) — a quick double-tap here should just flap twice, not zoom
+  // the page. preventDefault on touchend (as a non-passive listener) kills
+  // the zoom without affecting the flap, which already fires per tap above.
+  wrapper.addEventListener(
+    "touchend",
+    (e) => {
+      if (e.target.closest(".flappy-gameover-overlay")) return;
+      e.preventDefault();
+    },
+    { passive: false }
+  );
   retryBtn.addEventListener("click", reset);
   window.addEventListener("resize", measure);
 

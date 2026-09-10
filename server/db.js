@@ -54,7 +54,7 @@ seed([
   },
   {
     slug: "flappy-bird",
-    name: "Flap to 20",
+    name: "Flappy",
     description: "Tap to flap and thread the gaps. Get 20 and they answer your question.",
     price_egp: 90,
     price_usd_cents: 300,
@@ -92,6 +92,9 @@ db.prepare("UPDATE game_templates SET name = ?, description = ? WHERE slug = 'co
   "Catch It",
   "Fruits and veg fall from the top. Catch the one you're told, miss or grab the wrong one and it's over."
 );
+// Renamed from "Flap to 20" to just "Flappy" — keep it in sync for anyone
+// already seeded (production included).
+db.prepare("UPDATE game_templates SET name = ? WHERE slug = 'flappy-bird'").run("Flappy");
 
 // Retired: clean up on any environment that already seeded it, and any test
 // instances/orders that pointed at it (there's no real purchase history to

@@ -4,6 +4,14 @@ const { Resend } = require("resend");
 
 const OUTBOX_PATH = path.join(__dirname, "..", "..", "data", "outbox.log");
 
+// Used to build absolute URLs inside emails (the logo image, the footer
+// link) — emails have no relative-URL context the way a browser page does.
+const SITE_URL = process.env.SITE_URL || "https://www.joue-joue.com";
+// A PNG, not the site's SVG wordmark: most mail clients (Gmail chief among
+// them) don't render inline SVG images reliably, so email gets its own
+// rasterized copy (public/images/jouejoue-wordmark-email.png).
+const LOGO_URL = `${SITE_URL}/images/jouejoue-wordmark-email.png`;
+
 // Buyer/recipient-supplied text rendered into an HTML email for someone
 // else — same reasoning as the site's textContent-only rule elsewhere,
 // just for HTML email bodies where there's no DOM to lean on.
@@ -19,13 +27,30 @@ function escapeHtml(str) {
 // One shared wrapper so every email — answer notifications, contact
 // messages, receipts — reads as the same product instead of each having
 // its own one-off header. Plain inline styles throughout (no <style>
-// block, no flexbox/grid): email clients strip or mangle both.
-function emailShell({ kicker = "JoueJoue", bodyHtml }) {
+// block, no flexbox/grid, no background-image): email clients strip or
+// mangle all three. Logo header + white content card + signed-off footer,
+// the same shape most brand transactional email follows (Stripe, Airbnb,
+// Apple receipts) so this reads as "a real company sent this," not a
+// plain-text notification with a coat of paint.
+function emailShell({ kicker = "JoueJoue", bodyHtml, preheader }) {
   return `
-    <div style="font-family: -apple-system, Segoe UI, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #332a22;">
-      <p style="text-transform: uppercase; letter-spacing: 0.08em; font-size: 12px; font-weight: 700; color: #cf5d3b; margin: 0 0 20px;">${escapeHtml(kicker)}</p>
-      ${bodyHtml}
-      <p style="color: #a89a8d; font-size: 12px; margin: 28px 0 0; padding-top: 16px; border-top: 1px solid #ecdfc9;">A tiny gesture, sent as a game.</p>
+    <div style="background: #f7efe1; padding: 32px 16px; font-family: -apple-system, Segoe UI, Arial, sans-serif;">
+      ${preheader ? `<div style="display: none; max-height: 0; overflow: hidden; opacity: 0; mso-hide: all;">${escapeHtml(preheader)}</div>` : ""}
+      <div style="max-width: 480px; margin: 0 auto;">
+        <div style="text-align: center; padding-bottom: 22px;">
+          <img src="${LOGO_URL}" width="140" alt="JoueJoue" style="display: inline-block; height: auto; border: 0;" />
+        </div>
+        <div style="background: #ffffff; border-radius: 18px; padding: 32px 28px; color: #332a22; box-shadow: 0 1px 2px rgba(51, 42, 34, 0.06);">
+          <p style="text-transform: uppercase; letter-spacing: 0.08em; font-size: 12px; font-weight: 700; color: #cf5d3b; margin: 0 0 20px;">${escapeHtml(kicker)}</p>
+          ${bodyHtml}
+        </div>
+        <div style="text-align: center; padding: 26px 12px 0;">
+          <p style="margin: 0 0 2px; font-size: 13px; color: #6f6258;">With care,</p>
+          <p style="margin: 0 0 18px; font-size: 15px; font-weight: 700; color: #332a22; font-style: italic;">The JoueJoue team</p>
+          <p style="margin: 0; font-size: 11px; line-height: 1.6; color: #a89a8d;">A tiny gesture, sent as a game.<br />
+            <a href="${SITE_URL}" style="color: #a89a8d; text-decoration: underline;">joue-joue.com</a></p>
+        </div>
+      </div>
     </div>
   `;
 }
@@ -39,6 +64,34 @@ function receiptSummaryRow(label, value) {
       <td style="padding: 10px 0; border-bottom: 1px solid #ecdfc9; font-size: 15px; font-weight: 700; text-align: right;">${escapeHtml(value)}</td>
     </tr>
   `;
+}
+
+// A plain-text alternative alongside the HTML body, derived automatically
+// so every send function gets one for free without writing its message
+// twice. Spam filters weigh a proper multipart email (text + html) as more
+// legitimate than an HTML-only one — an easy, real deliverability win, not
+// just cosmetic. Good enough for this app's own templates (p/h1/table/a),
+// not a general-purpose HTML parser.
+function htmlToPlainText(html) {
+  return html
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<a[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, "$2 ($1)")
+    .replace(/<\/(p|h1|h2|h3|tr|div)>/gi, "\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<td[^>]*>/gi, "  ")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&mdash;/g, "—")
+    .replace(/&ldquo;/g, "“")
+    .replace(/&rdquo;/g, "”")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 let resendClient = null;
@@ -65,6 +118,7 @@ async function sendViaResend({ to, subject, html, replyTo }) {
       to,
       subject,
       html,
+      text: htmlToPlainText(html),
       ...(replyTo ? { replyTo } : {}),
     });
   } catch (err) {

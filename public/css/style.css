@@ -455,6 +455,19 @@ html.js [data-reveal-stagger].is-visible > * {
   font-size: 17px;
 }
 
+/* The stripped-down landing hero (just a headline, one line, two buttons —
+   no trust-strip/next-strip below it) leans on the buttons themselves to
+   carry weight, so they go bigger still and the hero gets a little more
+   breathing room since there's nothing crowding it underneath. */
+.hero--minimal {
+  padding-block: clamp(12px, 4vw, 36px);
+}
+.btn-lg {
+  padding: 20px 36px !important;
+  font-size: 18px !important;
+  border-radius: 14px;
+}
+
 /* A scattered row of stickers pulled from the actual minigames — a small,
    playful, on-brand graphic touch (not stock icons) so the hero reads as
    "games" at a glance, especially on a phone where there's no room for a
@@ -531,6 +544,10 @@ html.js [data-reveal-stagger].is-visible > * {
   .hero__actions .btn {
     padding: 12px 18px;
     font-size: 15px;
+  }
+  .hero__actions--big .btn-lg {
+    padding: 15px 20px !important;
+    font-size: 16px !important;
   }
 }
 
