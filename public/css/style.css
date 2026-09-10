@@ -440,6 +440,53 @@ html.js [data-reveal-stagger].is-visible > * {
 }
 
 /* ============================================================
+   Brand splash — the big-logo moment at the very top of the home
+   page, before the pitch. Animates in on load, drifts away on scroll
+   (landing.ejs inline script).
+   ============================================================ */
+.brand-splash {
+  text-align: center;
+  padding: clamp(36px, 13vh, 130px) 0 clamp(28px, 7vh, 72px);
+  will-change: transform, opacity;
+}
+.brand-splash__logo {
+  width: min(600px, 84vw);
+  height: auto;
+  display: inline-block;
+  animation: brand-splash-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.brand-splash__slogan {
+  margin: 20px 0 0;
+  font-size: clamp(15px, 2.4vw, 21px);
+  color: var(--color-ink-soft);
+  letter-spacing: 0.02em;
+  animation: brand-splash-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.14s both;
+}
+.brand-splash__scroll {
+  display: inline-block;
+  margin-top: 30px;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--color-accent);
+  animation: brand-splash-bounce 1.9s ease-in-out infinite;
+}
+@keyframes brand-splash-in {
+  from { opacity: 0; transform: translateY(18px) scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes brand-splash-bounce {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(7px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand-splash__logo,
+  .brand-splash__slogan,
+  .brand-splash__scroll {
+    animation: none;
+  }
+}
+
+/* ============================================================
    Hero
    ============================================================ */
 .hero {
