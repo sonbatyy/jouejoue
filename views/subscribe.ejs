@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('layout-partials/head', { title: 'Subscribe' }) %>
+</head>
+<body>
+  <%- include('layout-partials/page-bg') %>
+
+  <div class="container">
+    <%- include('layout-partials/nav') %>
+
+    <section class="section" style="text-align: center;">
+      <p class="eyebrow">Monthly plans</p>
+      <h1>A game every month, on autopilot.</h1>
+      <p style="max-width: 480px; margin: 10px auto 0;">Pick someone once, then a new game reaches them every month. Cancel anytime.</p>
+    </section>
+
+    <section class="section-tight">
+      <div class="tiers" data-reveal>
+        <% tiers.forEach(function(tier, i) { %>
+          <div class="tier <%= i === 1 ? 'tier--highlighted' : '' %> lift">
+            <% if (i === 1) { %><span class="tier__badge">Most personal</span><% } %>
+            <h3><%= tier.name %></h3>
+            <div class="tier__price"><%= tier.priceDisplay %> <span style="font-size: 14px; font-weight: 600; color: var(--color-ink-soft);">/ month</span></div>
+            <p><%= tier.description %></p>
+            <ul class="tier__features">
+              <% if (tier.key === 'random') { %>
+                <li>A different bank game each month</li>
+                <li>Delivered straight to them</li>
+                <li>Cancel anytime</li>
+              <% } else { %>
+                <li>Everything in Surprise</li>
+                <li>Built around your idea, monthly</li>
+                <li>Cancel anytime</li>
+              <% } %>
+            </ul>
+            <a href="/subscribe-payment/<%= tier.key %>" class="btn <%= i === 1 ? 'btn-primary' : 'btn-secondary' %> btn-fun" style="width: 100%;">Choose this plan <span class="btn-fun__icon">▶</span></a>
+          </div>
+        <% }); %>
+      </div>
+    </section>
+
+    <%- include('layout-partials/footer') %>
+  </div>
+
+  <script src="/js/reveal.js"></script>
+  <script src="/js/games/shared.js"></script>
+  <script src="/js/emoji-field.js"></script>
+</body>
+</html>

@@ -397,6 +397,14 @@ html.js [data-reveal-stagger].is-visible > * {
 .btn:active {
   transform: scale(0.94);
 }
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.3);
+}
+.btn:disabled:active {
+  transform: none;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .btn:active {

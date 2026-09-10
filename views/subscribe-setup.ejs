@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('layout-partials/head', { title: 'Set up · ' + tier.name }) %>
+</head>
+<body>
+  <%- include('layout-partials/page-bg') %>
+
+  <div class="container">
+    <%- include('layout-partials/nav') %>
+
+    <section class="section-tight">
+      <div style="text-align: center; max-width: 560px; margin: 0 auto;">
+        <p class="eyebrow">Paid — <%= tier.priceDisplay %>/mo</p>
+        <h1 style="font-size: 30px;">Who's this for?</h1>
+        <p>Set it up once — a new game reaches them every month from here.</p>
+      </div>
+
+      <div class="form-card" style="margin-top: 24px;">
+        <form method="POST" action="/api/subscriptions">
+          <input type="hidden" name="tier" value="<%= tier.key %>" />
+
+          <label for="recipientName">Their name</label>
+          <input type="text" id="recipientName" name="recipientName" placeholder="Whoever's getting it" required />
+
+          <label for="recipientEmail">Their email</label>
+          <input type="email" id="recipientEmail" name="recipientEmail" placeholder="them@example.com" required />
+
+          <% if (tier.key === 'random') { %>
+            <label for="question">Your question (asked every month)</label>
+            <textarea id="question" name="question" placeholder="Something that stays true every time — how are you, what made you smile this month..." required></textarea>
+          <% } else { %>
+            <label for="gameIdea">What kind of game do you want each month?</label>
+            <textarea id="gameIdea" name="gameIdea" placeholder="A quiz, a treasure hunt, something else — we'll build a new one around this every cycle." required></textarea>
+          <% } %>
+
+          <label for="subscriberName">Your full name</label>
+          <input type="text" id="subscriberName" name="subscriberName" placeholder="So they know it's from you" required />
+
+          <label for="subscriberEmail">Your email</label>
+          <input type="email" id="subscriberEmail" name="subscriberEmail" placeholder="you@example.com" required />
+
+          <button type="submit" class="btn btn-primary">Start the subscription</button>
+        </form>
+      </div>
+    </section>
+
+    <%- include('layout-partials/footer') %>
+  </div>
+  <script src="/js/games/shared.js"></script>
+  <script src="/js/emoji-field.js"></script>
+</body>
+</html>

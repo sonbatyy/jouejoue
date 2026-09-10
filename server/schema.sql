@@ -67,3 +67,27 @@ CREATE TABLE IF NOT EXISTS receipts (
 );
 CREATE INDEX IF NOT EXISTS idx_receipts_number ON receipts(receipt_number);
 CREATE INDEX IF NOT EXISTS idx_receipts_buyer_email ON receipts(buyer_email);
+
+-- A monthly plan: 'random' auto-picks a bank game for the recipient each
+-- cycle, 'personalized' turns each cycle into a custom-game request instead.
+-- No real recurring billing exists here (nothing auto-charges — this is
+-- still a mock checkout) — delivery is pulled, not pushed: the manage page
+-- shows a "Get this month's game" button that only works once a real month
+-- has actually passed since the last delivery, same honesty as the rest of
+-- this app's mock payments.
+CREATE TABLE IF NOT EXISTS subscriptions (
+  id                INTEGER PRIMARY KEY AUTOINCREMENT,
+  manage_token      TEXT UNIQUE NOT NULL,
+  tier              TEXT NOT NULL,             -- 'random' | 'personalized'
+  subscriber_name   TEXT NOT NULL,
+  subscriber_email  TEXT NOT NULL,
+  recipient_name    TEXT NOT NULL,
+  recipient_email   TEXT NOT NULL,
+  question          TEXT NOT NULL DEFAULT '',  -- reused every cycle for the 'random' tier
+  game_idea         TEXT NOT NULL DEFAULT '',  -- reused every cycle for the 'personalized' tier
+  status            TEXT NOT NULL DEFAULT 'active',  -- 'active' | 'cancelled'
+  started_at        INTEGER NOT NULL,
+  last_delivered_at INTEGER NOT NULL,
+  deliveries_count  INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_manage_token ON subscriptions(manage_token);

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('layout-partials/head', { title: 'Payment · ' + tier.name }) %>
+</head>
+<body>
+  <%- include('layout-partials/page-bg') %>
+
+  <div class="container">
+    <%- include('layout-partials/nav') %>
+
+    <section class="section-tight">
+      <div style="text-align: center; max-width: 560px; margin: 0 auto;">
+        <p class="eyebrow">Checkout (mock, nothing is charged)</p>
+        <h1 style="font-size: 30px;">Start <%= tier.name %></h1>
+        <p style="margin-top: 8px;">Tell us who it's for on the next step — this just locks in the price first.</p>
+      </div>
+
+      <div class="form-card" style="margin-top: 24px; max-width: 420px;">
+        <div class="order-summary">
+          <div class="order-summary__row">
+            <span><%= tier.name %></span>
+            <strong><%= tier.priceDisplay %> / month</strong>
+          </div>
+        </div>
+
+        <form method="POST" action="/subscribe-payment/<%= tier.key %>" autocomplete="off">
+          <label for="cardName">Name on card</label>
+          <input type="text" id="cardName" name="cardName" placeholder="Jane Doe" />
+
+          <label for="cardNumber">Card number</label>
+          <input type="text" id="cardNumber" name="cardNumber" placeholder="4242 4242 4242 4242" inputmode="numeric" maxlength="19" />
+
+          <div class="form-row">
+            <div>
+              <label for="cardExpiry">Expiry</label>
+              <input type="text" id="cardExpiry" name="cardExpiry" placeholder="MM / YY" inputmode="numeric" maxlength="5" />
+            </div>
+            <div>
+              <label for="cardCvc">CVC</label>
+              <input type="text" id="cardCvc" name="cardCvc" placeholder="123" inputmode="numeric" maxlength="4" />
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary wash" id="payButton">Subscribe — <%= tier.priceDisplay %>/mo</button>
+          <p class="form-fineprint">This is a prototype. No card processor is connected, nothing you type here is saved, and no money moves — nothing auto-charges next month either.</p>
+        </form>
+      </div>
+    </section>
+
+    <%- include('layout-partials/footer') %>
+  </div>
+  <script src="/js/games/shared.js"></script>
+  <script src="/js/emoji-field.js"></script>
+  <script src="/js/card-input.js"></script>
+</body>
+</html>

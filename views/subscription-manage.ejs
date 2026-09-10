@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('layout-partials/head', { title: 'Manage subscription' }) %>
+</head>
+<body>
+  <%- include('layout-partials/page-bg', { hideEmojiField: true }) %>
+
+  <div class="container">
+    <%- include('layout-partials/nav') %>
+
+    <section class="section-tight" style="max-width: 480px; margin: 0 auto;">
+      <div class="form-card">
+        <p class="eyebrow" style="margin: 0 0 4px;"><%= subscription.status === 'active' ? 'Active' : 'Cancelled' %></p>
+        <h1 style="font-size: 24px; margin: 0 0 18px;"><%= tier.name %></h1>
+
+        <div class="order-summary" style="background: transparent; padding: 0; border: none;">
+          <div class="order-summary__row" style="padding: 8px 0; border-bottom: 1px solid var(--color-border);">
+            <span style="color: var(--color-ink-soft);">For</span>
+            <strong><%= subscription.recipient_name %></strong>
+          </div>
+          <div class="order-summary__row" style="padding: 8px 0; border-bottom: 1px solid var(--color-border);">
+            <span style="color: var(--color-ink-soft);">Price</span>
+            <strong><%= tier.priceDisplay %> / month</strong>
+          </div>
+          <div class="order-summary__row" style="padding: 8px 0; border-bottom: 1px solid var(--color-border);">
+            <span style="color: var(--color-ink-soft);">Deliveries so far</span>
+            <strong><%= subscription.deliveries_count %></strong>
+          </div>
+          <div class="order-summary__row" style="padding: 8px 0;">
+            <span style="color: var(--color-ink-soft);"><%= due ? 'Ready now' : 'Next one ready' %></span>
+            <strong><%= due ? 'Yes' : nextDeliveryDate %></strong>
+          </div>
+        </div>
+
+        <% if (subscription.status === 'active') { %>
+          <form method="POST" action="/subscription/<%= subscription.manage_token %>/deliver">
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 18px;" <%= due ? '' : 'disabled' %>>
+              <%= due ? "Get this month's game" : `Ready ${nextDeliveryDate}` %>
+            </button>
+          </form>
+          <form method="POST" action="/subscription/<%= subscription.manage_token %>/cancel" style="margin-top: 8px;">
+            <button type="submit" class="btn btn-secondary" style="width: 100%;">Cancel subscription</button>
+          </form>
+        <% } else { %>
+          <p style="margin-top: 18px; color: var(--color-ink-soft); font-size: 14px;">This plan is cancelled — no further games will be sent.</p>
+        <% } %>
+
+        <p style="color: var(--color-ink-soft); font-size: 12px; margin-top: 16px;">Prototype: nothing auto-charges. Bookmark this page — it's the only way to manage or cancel this plan.</p>
+      </div>
+    </section>
+
+    <%- include('layout-partials/footer') %>
+  </div>
+  <script src="/js/games/shared.js"></script>
+  <script src="/js/emoji-field.js"></script>
+</body>
+</html>

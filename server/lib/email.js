@@ -344,4 +344,39 @@ function sendGameInvite({ recipientEmail, recipientName, senderName, note, templ
   logStub("game invite", [["To", recipientEmail], ["From", senderName], ["For", recipientName], ["Game", templateName], ["Note", note], ["Link", shareUrl]]);
 }
 
-module.exports = { sendAnswerNotification, sendContactNotification, sendPurchaseReceipt, sendRenewalReceipt, sendCustomRequestReceipt, sendGameInvite };
+// Sent to the subscriber after every cycle's delivery (server/routes/
+// subscriptions.js, both the signup route and the manual "get this month's
+// game" route) — one email per month, whichever tier it is. The recipient
+// (for the 'random' tier) gets their own separate sendGameInvite email; this
+// one is the subscriber's own receipt + a link to manage the plan.
+function sendSubscriptionReceipt({ subscriberEmail, tierName, monthLabel, priceDisplay, detail, manageUrl, receiptNumber, date }) {
+  const mode = process.env.EMAIL_MODE || "console";
+  const subject = `Receipt ${receiptNumber}: ${tierName} — ${monthLabel}`;
+
+  if (mode === "resend") {
+    sendViaResend({
+      to: subscriberEmail,
+      subject,
+      html: emailShell({
+        kicker: "JoueJoue · Subscription",
+        bodyHtml: `
+          <h1 style="font-size: 22px; margin: 0 0 16px;">${escapeHtml(monthLabel)} is on its way.</h1>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            ${receiptHeaderRows(receiptNumber, date)}
+            ${receiptSummaryRow(tierName, priceDisplay)}
+            ${receiptSummaryRow("This month", detail)}
+          </table>
+          <p style="margin: 0 0 6px; color: #6f6258; font-size: 14px;">Manage or cancel anytime:</p>
+          <p style="margin: 0 0 20px; font-size: 15px; word-break: break-all;"><a href="${escapeHtml(manageUrl)}" style="color: #cf5d3b;">${escapeHtml(manageUrl)}</a></p>
+          <p style="color: #a89a8d; font-size: 12px; margin: 0;">Paid via mock checkout — this is a prototype, no card processor is connected and nothing auto-charges. Come back to the link above once a month has passed to pull the next one.</p>
+          ${viewReceiptLink(receiptNumber)}
+        `,
+      }),
+    });
+    return;
+  }
+
+  logStub("subscription receipt", [["To", subscriberEmail], ["Order #", receiptNumber], ["Tier", tierName], ["Month", monthLabel], ["Price", priceDisplay], ["Detail", detail], ["Manage", manageUrl]]);
+}
+
+module.exports = { sendAnswerNotification, sendContactNotification, sendPurchaseReceipt, sendRenewalReceipt, sendCustomRequestReceipt, sendGameInvite, sendSubscriptionReceipt };
