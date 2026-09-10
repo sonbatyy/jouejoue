@@ -9,15 +9,86 @@
   <div class="container">
     <%- include('layout-partials/nav') %>
 
-    <section class="hero hero--full">
-      <img src="/images/jouejoue-wordmark.svg" alt="JoueJoue" class="hero__logo" />
-      <h1>Turn your question into a game only <span class="wash-text">they</span> can answer.</h1>
-      <p class="hero__subhead">
-        Pick a minigame, write what you want to ask, send the link. They play, then their answer lands straight in your inbox.
-      </p>
-      <div class="hero__actions hero__actions--big">
+    <!-- 1 · Hero -->
+    <section class="lp-hero">
+      <img src="/images/jouejoue-wordmark.svg" alt="JoueJoue" class="lp-hero__logo" />
+      <h1 class="lp-hero__headline">Ask them anything.<br />Make them <span class="wash-text">play</span> for it.</h1>
+      <div class="lp-hero__actions">
         <a href="/demo" class="btn btn-primary btn-lg">Try a free demo</a>
         <a href="/games" class="btn btn-secondary btn-lg">Browse games</a>
+      </div>
+      <a href="#how" class="lp-hero__cue">See how it works &darr;</a>
+    </section>
+
+    <!-- 2 · The three moves -->
+    <section class="lp-section" id="how" data-reveal>
+      <h2 class="lp-section__title">A question they have to earn.</h2>
+      <div class="lp-cards">
+        <div class="lp-card lp-card--accent">
+          <span class="lp-card__label">01 &middot; Pick a game</span>
+          <span class="lp-card__icon">🎮</span>
+          <h3 class="lp-card__headline">Under a minute to play</h3>
+          <p>Four minigames in the bank, or a custom one built around your idea.</p>
+          <a href="/games" class="lp-card__link">Browse games &rarr;</a>
+        </div>
+        <div class="lp-card lp-card--ink">
+          <span class="lp-card__label">02 &middot; Write your question</span>
+          <span class="lp-card__icon">💬</span>
+          <h3 class="lp-card__headline">Anything you actually want to know</h3>
+          <p>Yes or no. This or that. Will you. The kind of thing that's more fun once they've won it.</p>
+          <a href="/how-it-works" class="lp-card__link">How it works &rarr;</a>
+        </div>
+        <div class="lp-card lp-card--cream">
+          <span class="lp-card__label">03 &middot; Get the answer</span>
+          <span class="lp-card__icon">💌</span>
+          <h3 class="lp-card__headline">Straight to your inbox</h3>
+          <p>They play, they answer, and you get an email the moment they do.</p>
+          <a href="/pricing" class="lp-card__link">See pricing &rarr;</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 · Statement -->
+    <section class="lp-statement" data-reveal>
+      <p>The best answers start with<br /><span class="wash-text">"okay fine, I'll play."</span></p>
+    </section>
+
+    <!-- 4 · Full-bleed band -->
+    <section class="lp-band lp-bleed">
+      <div class="lp-band__inner">
+        <p class="lp-band__line">You, a question</p>
+        <p class="lp-band__line">Them, a game</p>
+        <p class="lp-band__line">No pressure</p>
+        <p class="lp-band__line lp-band__line--em">Answers hit different when they're earned</p>
+        <p class="lp-band__foot">That's JoueJoue.</p>
+      </div>
+    </section>
+
+    <!-- 5 · Games showcase -->
+    <section class="lp-games lp-bleed">
+      <div class="lp-games__inner">
+        <h2 class="lp-section__title lp-section__title--light">Every game plays in under a minute.</h2>
+        <div class="lp-games__tiles" aria-hidden="true">
+          <span class="lp-tile lp-tile--1">🎂</span>
+          <span class="lp-tile lp-tile--2">🦆</span>
+          <span class="lp-tile lp-tile--3">🐦</span>
+          <span class="lp-tile lp-tile--4">🍓</span>
+          <span class="lp-tile lp-tile--5">🥕</span>
+        </div>
+        <div class="lp-hero__actions">
+          <a href="/demo" class="btn btn-primary btn-lg">Try a free demo</a>
+          <a href="/games" class="btn btn-secondary btn-lg lp-btn-on-dark">Browse games</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 · Final CTA -->
+    <section class="lp-final" data-reveal>
+      <h2>Send your first one.</h2>
+      <p>No account. Nothing charged until checkout. Every link stays live a full month.</p>
+      <div class="lp-hero__actions">
+        <a href="/games" class="btn btn-primary btn-lg">Browse games</a>
+        <a href="/demo" class="btn btn-secondary btn-lg">Try a demo first</a>
       </div>
     </section>
 
