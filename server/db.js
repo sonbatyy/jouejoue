@@ -39,6 +39,21 @@ if (!customRequestColumns.includes("template_id")) {
   db.exec("ALTER TABLE custom_game_requests ADD COLUMN template_id INTEGER REFERENCES game_templates(id)");
 }
 
+// company_batches gained 'reward' mode (win/lose discount text shown on the
+// play screen) after the table already existed on some environments.
+const batchTableExists = db
+  .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'company_batches'")
+  .get();
+if (batchTableExists) {
+  const batchColumns = db.prepare("PRAGMA table_info(company_batches)").all().map((c) => c.name);
+  if (!batchColumns.includes("reward_win")) {
+    db.exec("ALTER TABLE company_batches ADD COLUMN reward_win TEXT NOT NULL DEFAULT ''");
+  }
+  if (!batchColumns.includes("reward_lose")) {
+    db.exec("ALTER TABLE company_batches ADD COLUMN reward_lose TEXT NOT NULL DEFAULT ''");
+  }
+}
+
 // Idempotent per-slug seeding (not "only if the table is empty") so adding a
 // new game template later doesn't require wiping existing instances/orders
 // tied to the templates already there.

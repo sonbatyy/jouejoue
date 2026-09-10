@@ -37,6 +37,11 @@ function batchStats(batchId) {
       "SELECT COUNT(DISTINCT cs.code_id) n FROM code_scans cs JOIN company_codes cc ON cc.id = cs.code_id WHERE cc.batch_id = ?"
     )
     .get(batchId).n;
+  const scanEvents = db
+    .prepare(
+      "SELECT COUNT(*) n FROM code_scans cs JOIN company_codes cc ON cc.id = cs.code_id WHERE cc.batch_id = ?"
+    )
+    .get(batchId).n;
   const played = db
     .prepare("SELECT COUNT(*) n FROM company_codes WHERE batch_id = ? AND instance_token IS NOT NULL")
     .get(batchId).n;
@@ -47,7 +52,7 @@ function batchStats(batchId) {
        WHERE cc.batch_id = ? AND gi.status = 'answered'`
     )
     .get(batchId).n;
-  return { total, scanned, played, answered };
+  return { total, scanned, scanEvents, played, answered };
 }
 
 module.exports = {

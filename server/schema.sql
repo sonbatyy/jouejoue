@@ -128,9 +128,11 @@ CREATE TABLE IF NOT EXISTS company_batches (
   company_id       INTEGER NOT NULL REFERENCES companies(id),
   template_id      INTEGER NOT NULL REFERENCES game_templates(id),
   level            TEXT NOT NULL DEFAULT 'medium',
-  mode             TEXT NOT NULL DEFAULT 'fixed',      -- 'fixed' | 'personalized'
+  mode             TEXT NOT NULL DEFAULT 'fixed',      -- 'fixed' | 'personalized' | 'reward'
   default_question TEXT NOT NULL DEFAULT '',           -- used for 'fixed' mode
   answers_to       TEXT NOT NULL DEFAULT 'buyer',      -- 'buyer' | 'company'
+  reward_win       TEXT NOT NULL DEFAULT '',           -- shown on a win, 'reward' mode
+  reward_lose      TEXT NOT NULL DEFAULT '',           -- shown on a loss, 'reward' mode
   quantity         INTEGER NOT NULL,
   price_display    TEXT NOT NULL,
   currency         TEXT NOT NULL,

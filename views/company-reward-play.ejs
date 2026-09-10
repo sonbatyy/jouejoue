@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('layout-partials/head', { title: 'Play for it' }) %>
+  <% if (branding && branding.accent) { %>
+    <style>:root { --color-accent: <%= branding.accent %>; --color-accent-dark: <%= branding.accent %>; }</style>
+  <% } %>
+</head>
+<body>
+  <% if (branding && branding.logoUrl) { %>
+    <img src="<%= branding.logoUrl %>" alt="" class="play-brand-logo" />
+  <% } %>
+
+  <div class="overlay reward-overlay hidden" id="reward-overlay">
+    <div class="modal-box">
+      <h2 class="reward-overlay__title">You won!</h2>
+      <p class="reward-overlay__body"></p>
+      <p style="font-size: 12px; color: var(--color-ink-soft); margin-top: 14px;">Show this screen to redeem.</p>
+    </div>
+  </div>
+
+  <div class="play-shell">
+    <% if (playData.templateSlug === 'cake-catch') { %>
+      <div class="play-instructions">Catch the cake and drag it into the mouse's mouth.</div>
+      <div id="play-mouse">
+        <div class="mouse-emoji">🐭</div>
+        <div id="play-mouth"></div>
+      </div>
+      <div class="critter cake">🍰</div>
+    <% } else if (playData.templateSlug === 'duck-catch') { %>
+      <div class="play-instructions">Catch the duck before it gets away.</div>
+      <div class="critter duck click-catch">🦆</div>
+    <% } %>
+    <!-- flappy-bird and cooking build their own markup via JS. -->
+  </div>
+
+  <script>
+    window.__REWARD__ = <%- JSON.stringify(playData).replace(/</g, '\\u003c') %>;
+  </script>
+  <script src="/js/games/shared.js"></script>
+  <script src="/js/games/cake-catch.js"></script>
+  <script src="/js/games/duck-catch.js"></script>
+  <script src="/js/games/flappy-bird.js"></script>
+  <script src="/js/games/cooking.js"></script>
+  <script>
+    (function () {
+      var d = window.__REWARD__;
+      var containerEl = document.querySelector(".play-shell");
+      var REGISTRY = {
+        "cake-catch": window.initCakeCatch,
+        "duck-catch": window.initDuckCatch,
+        "flappy-bird": window.initFlappyBird,
+        cooking: window.initCooking,
+      };
+      function showResult(won) {
+        if (won) window.GameLib.confettiRain();
+        var overlay = document.getElementById("reward-overlay");
+        overlay.querySelector(".reward-overlay__title").textContent = won ? "You won!" : "So close.";
+        overlay.querySelector(".reward-overlay__body").textContent =
+          won ? d.rewardWin : (d.rewardLose || "No prize this time. Try again next visit.");
+        overlay.classList.remove("hidden");
+      }
+      var init = REGISTRY[d.templateSlug];
+      if (init) {
+        init({ containerEl: containerEl, level: d.level, onWin: function () { showResult(true); }, onLose: function () { showResult(false); } });
+      } else {
+        containerEl.innerHTML = '<p style="padding:40px;text-align:center;">Game unavailable.</p>';
+      }
+    })();
+  </script>
+</body>
+</html>

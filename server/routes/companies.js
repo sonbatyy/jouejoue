@@ -20,7 +20,7 @@ const router = express.Router();
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const LEVELS = ["easy", "medium", "hard"];
-const MODES = ["fixed", "personalized"];
+const MODES = ["fixed", "personalized", "reward"];
 
 // ---------------------------------------------------------------------------
 // Phase A: pitch + request-access
@@ -123,6 +123,8 @@ function readBatchConfig(body) {
     mode: MODES.includes(body.mode) ? body.mode : "fixed",
     defaultQuestion: String(body.defaultQuestion || "").trim(),
     answersTo: body.answersTo === "company" ? "company" : "buyer",
+    rewardWin: String(body.rewardWin || "").trim().slice(0, 200),
+    rewardLose: String(body.rewardLose || "").trim().slice(0, 200),
     quantity: Math.max(MIN_QUANTITY, Math.min(MAX_QUANTITY, Math.floor(Number(body.quantity) || 0))),
     logoUrl: String(body.logoUrl || "").trim(),
     accentColor: String(body.accentColor || "").trim(),
@@ -134,6 +136,7 @@ function validateBatchConfig(c) {
   if (!template) return "Pick a game.";
   if (!c.quantity || c.quantity < MIN_QUANTITY) return `Minimum order is ${MIN_QUANTITY} codes.`;
   if (c.mode === "fixed" && !c.defaultQuestion) return "A fixed batch needs a question.";
+  if (c.mode === "reward" && !c.rewardWin) return "A reward batch needs at least the win reward text.";
   if (c.accentColor && !/^#[0-9a-fA-F]{3,8}$/.test(c.accentColor)) return "Accent colour must be a hex value like #cf5d3b.";
   if (c.logoUrl && !/^https:\/\/\S+$/.test(c.logoUrl)) return "Logo URL must be a full https:// address.";
   return null;
@@ -161,8 +164,8 @@ router.post("/company/:manageToken/batches", async (req, res) => {
   const batchId = db
     .prepare(
       `INSERT INTO company_batches
-       (company_id, template_id, level, mode, default_question, answers_to, quantity, price_display, currency, logo_url, accent_color, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       (company_id, template_id, level, mode, default_question, answers_to, reward_win, reward_lose, quantity, price_display, currency, logo_url, accent_color, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .run(
       company.id,
@@ -171,6 +174,8 @@ router.post("/company/:manageToken/batches", async (req, res) => {
       config.mode,
       config.defaultQuestion,
       answersTo,
+      config.mode === "reward" ? config.rewardWin : "",
+      config.mode === "reward" ? config.rewardLose : "",
       config.quantity,
       priceDisplay,
       currency,
@@ -321,6 +326,23 @@ router.get("/g/:shortcode", async (req, res) => {
   const found = loadCodeWithBatch(req.params.shortcode);
   if (!found) return res.status(404).render("expired", { message: "That code isn't recognised." });
   await logScan(req, found.code.id);
+
+  // Reward mode: reusable, stateless. Every scan is a fresh play; win or
+  // lose just shows a discount message on the screen, nothing is stored per
+  // play beyond the scan we just logged, and no game instance is created.
+  if (found.batch.mode === "reward") {
+    return res.render("company-reward-play", {
+      branding: found.batch.logo_url || found.batch.accent_color
+        ? { logoUrl: found.batch.logo_url, accent: found.batch.accent_color }
+        : null,
+      playData: {
+        templateSlug: found.template.slug,
+        level: found.batch.level,
+        rewardWin: found.batch.reward_win,
+        rewardLose: found.batch.reward_lose || "",
+      },
+    });
+  }
 
   if (found.code.instance_token) {
     return res.redirect(`/play/${found.code.instance_token}`);

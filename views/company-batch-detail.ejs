@@ -12,13 +12,20 @@
     <section class="section-tight" style="max-width: 760px; margin: 0 auto;">
       <p class="eyebrow"><a href="/company/<%= company.manage_token %>" class="nav-underline">&larr; <%= company.name %></a></p>
       <h1 style="font-size: 26px;"><%= templateName %>: <%= batch.quantity %> codes</h1>
-      <p style="font-size: 14px; color: var(--color-ink-soft); text-transform: capitalize;"><%= batch.mode %> · <%= batch.level %> · answers to <%= batch.answers_to %></p>
+      <p style="font-size: 14px; color: var(--color-ink-soft); text-transform: capitalize;"><%= batch.mode %> · <%= batch.level %><% if (batch.mode !== 'reward') { %> · answers to <%= batch.answers_to %><% } %></p>
+      <% if (batch.mode === 'reward') { %>
+        <p style="font-size: 13px; color: var(--color-ink-soft);">Win: <strong><%= batch.reward_win %></strong><% if (batch.reward_lose) { %> &nbsp;·&nbsp; Lose: <strong><%= batch.reward_lose %></strong><% } %></p>
+      <% } %>
 
       <div class="order-summary" style="margin-top: 16px; display: flex; gap: 24px; flex-wrap: wrap;">
         <div><div style="font-size: 22px; font-weight: 800;"><%= stats.total %></div><div style="font-size: 12px; color: var(--color-ink-soft);">codes</div></div>
-        <div><div style="font-size: 22px; font-weight: 800;"><%= stats.scanned %></div><div style="font-size: 12px; color: var(--color-ink-soft);">scanned</div></div>
-        <div><div style="font-size: 22px; font-weight: 800;"><%= stats.played %></div><div style="font-size: 12px; color: var(--color-ink-soft);">played</div></div>
-        <div><div style="font-size: 22px; font-weight: 800;"><%= stats.answered %></div><div style="font-size: 12px; color: var(--color-ink-soft);">answered</div></div>
+        <div><div style="font-size: 22px; font-weight: 800;"><%= stats.scanned %></div><div style="font-size: 12px; color: var(--color-ink-soft);"><%= batch.mode === 'reward' ? 'codes scanned' : 'scanned' %></div></div>
+        <% if (batch.mode === 'reward') { %>
+          <div><div style="font-size: 22px; font-weight: 800;"><%= stats.scanEvents %></div><div style="font-size: 12px; color: var(--color-ink-soft);">total plays</div></div>
+        <% } else { %>
+          <div><div style="font-size: 22px; font-weight: 800;"><%= stats.played %></div><div style="font-size: 12px; color: var(--color-ink-soft);">played</div></div>
+          <div><div style="font-size: 22px; font-weight: 800;"><%= stats.answered %></div><div style="font-size: 12px; color: var(--color-ink-soft);">answered</div></div>
+        <% } %>
       </div>
 
       <div style="display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap;">

@@ -31,20 +31,32 @@
           </select>
 
           <fieldset class="delivery-choice">
-            <legend>Content per code</legend>
+            <legend>How each code works</legend>
             <label class="delivery-choice__option">
               <input type="radio" name="mode" value="fixed" checked />
-              <span><strong>Fixed.</strong> Every code plays the same game and question you set here. Answers go to you.</span>
+              <span><strong>Fixed question.</strong> Every code asks the same thing. The answer emails to you.</span>
             </label>
             <label class="delivery-choice__option">
               <input type="radio" name="mode" value="personalized" />
-              <span><strong>Personalized.</strong> Each buyer sets their own question and email first. Answers go to them.</span>
+              <span><strong>Personalized.</strong> Each buyer sets their own question and email first. The answer goes to them.</span>
+            </label>
+            <label class="delivery-choice__option">
+              <input type="radio" name="mode" value="reward" />
+              <span><strong>Reward.</strong> Reusable code, no question. Win the game for the full discount, lose for a smaller one. Shown on screen.</span>
             </label>
           </fieldset>
 
           <div id="fixed-question-field">
-            <label for="defaultQuestion">The question (fixed mode)</label>
+            <label for="defaultQuestion">The question</label>
             <input type="text" id="defaultQuestion" name="defaultQuestion" placeholder="e.g. How did the flowers make you feel?" />
+          </div>
+
+          <div id="reward-fields" hidden>
+            <label for="rewardWin">Win reward</label>
+            <input type="text" id="rewardWin" name="rewardWin" placeholder="e.g. 20% off — show this screen at the till" maxlength="200" />
+            <label for="rewardLose">Consolation reward (optional)</label>
+            <input type="text" id="rewardLose" name="rewardLose" placeholder="e.g. 10% off — code TRY10" maxlength="200" />
+            <p style="font-size: 12px; color: var(--color-ink-soft); margin: 4px 0 0;">Flappy and Catch It have a real win/lose split. The catch games can't be lost, so they always give the win reward.</p>
           </div>
 
           <label for="quantity">How many codes</label>
@@ -66,12 +78,16 @@
   <script>
     (function () {
       var radios = document.querySelectorAll('input[name="mode"]');
-      var field = document.getElementById('fixed-question-field');
-      var input = document.getElementById('defaultQuestion');
+      var qField = document.getElementById('fixed-question-field');
+      var qInput = document.getElementById('defaultQuestion');
+      var rFields = document.getElementById('reward-fields');
+      var rInput = document.getElementById('rewardWin');
       function sync() {
-        var fixed = document.querySelector('input[name="mode"]:checked').value === 'fixed';
-        field.hidden = !fixed;
-        input.required = fixed;
+        var mode = document.querySelector('input[name="mode"]:checked').value;
+        qField.hidden = mode !== 'fixed';
+        qInput.required = mode === 'fixed';
+        rFields.hidden = mode !== 'reward';
+        rInput.required = mode === 'reward';
       }
       radios.forEach(function (r) { r.addEventListener('change', sync); });
       sync();

@@ -32,8 +32,12 @@
               </div>
               <div style="margin-top: 10px; display: flex; gap: 18px; font-size: 13px; color: var(--color-ink-soft);">
                 <span><strong style="color: var(--color-ink);"><%= b.stats.scanned %></strong> scanned</span>
-                <span><strong style="color: var(--color-ink);"><%= b.stats.played %></strong> played</span>
-                <span><strong style="color: var(--color-ink);"><%= b.stats.answered %></strong> answered</span>
+                <% if (b.mode === 'reward') { %>
+                  <span><strong style="color: var(--color-ink);"><%= b.stats.scanEvents %></strong> plays</span>
+                <% } else { %>
+                  <span><strong style="color: var(--color-ink);"><%= b.stats.played %></strong> played</span>
+                  <span><strong style="color: var(--color-ink);"><%= b.stats.answered %></strong> answered</span>
+                <% } %>
               </div>
             </a>
           <% }); %>

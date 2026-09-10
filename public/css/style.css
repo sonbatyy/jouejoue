@@ -1680,6 +1680,15 @@ textarea {
   opacity: 0.92;
 }
 
+/* Reward-mode result: the discount line is the whole point, so make it
+   the biggest thing in the modal. */
+.reward-overlay__body {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--color-ink);
+  margin: 8px 0 0;
+}
+
 .play-intro-overlay__note {
   background: var(--color-cream);
   border-radius: 12px;
