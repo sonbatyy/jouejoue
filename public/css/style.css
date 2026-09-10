@@ -510,9 +510,47 @@ html.js [data-reveal-stagger].is-visible > * {
   .lp-hero__headline, .lp-hero__actions { animation: none; }
 }
 
+/* Shared page header — every marketing page opens with this now, so the
+   whole site carries the home page's weight, not just the home page. */
+.page-head {
+  text-align: center;
+  padding-block: clamp(40px, 9vh, 92px) clamp(26px, 5vh, 46px);
+}
+.page-head h1 {
+  font-size: clamp(32px, 6.2vw, 62px);
+  line-height: 1.03;
+  max-width: 20ch;
+  margin-inline: auto;
+}
+.page-head p {
+  max-width: 500px;
+  margin: 16px auto 0;
+}
+@media (max-width: 640px) {
+  .page-head { padding-block: 40px 22px; }
+}
+
 /* Shared section shell */
 .lp-section {
   padding-block: clamp(64px, 13vh, 150px);
+}
+/* 4-across variant of the card grid, for the how-it-works steps. These are
+   short steps, not the landing's tall feature cards, so they size to
+   content and the icon isn't pushed to the top. */
+.lp-cards--four {
+  grid-template-columns: 1fr;
+}
+@media (min-width: 620px) {
+  .lp-cards--four { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1000px) {
+  .lp-cards--four { grid-template-columns: repeat(4, 1fr); }
+}
+.lp-cards--four .lp-card {
+  min-height: 0;
+}
+.lp-cards--four .lp-card__icon {
+  margin: 14px 0 12px;
 }
 .lp-section__title {
   font-size: clamp(28px, 5vw, 54px);
