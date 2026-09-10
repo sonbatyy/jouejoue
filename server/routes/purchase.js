@@ -1,4 +1,5 @@
 const express = require("express");
+const QRCode = require("qrcode");
 const db = require("../db");
 const { generatePersonalizedToken } = require("../lib/tokens");
 const { computeExpiry } = require("../lib/expiry");
@@ -138,7 +139,8 @@ router.get("/confirmation/:token", async (req, res) => {
   const template = db.prepare("SELECT * FROM game_templates WHERE id = ?").get(instance.template_id);
   const shareUrl = `${req.protocol}://${req.get("host")}/play/${instance.token}`;
   const currency = await resolveCurrency(req);
-  res.render("confirmation", { instance, template: withLocalizedPrice(template, currency), shareUrl });
+  const qrDataUrl = await QRCode.toDataURL(shareUrl, { margin: 1, width: 320 });
+  res.render("confirmation", { instance, template: withLocalizedPrice(template, currency), shareUrl, qrDataUrl });
 });
 
 module.exports = router;

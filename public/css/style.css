@@ -560,6 +560,7 @@ html.js [data-reveal-stagger].is-visible > * {
   font-size: clamp(19px, 2.2vw, 24px);
   line-height: 1.12;
   margin: 18px 0 8px;
+  color: inherit; /* the h1,h2,h3 rule forces --color-ink; on the dark card that's invisible */
 }
 .lp-card p { color: inherit; opacity: 0.9; font-size: 14px; margin: 0; }
 .lp-card__link {
@@ -699,7 +700,45 @@ html.js [data-reveal-stagger].is-visible > * {
 .lp-final p { max-width: 440px; margin: 0 auto; }
 .lp-final .lp-hero__actions { animation: none; }
 
-@media (max-width: 560px) {
+@media (max-width: 640px) {
+  /* On a phone the desktop clamp minimums (100px+ per section, 360px cards)
+     leave the page mostly empty air. Tighten everything to a phone rhythm. */
+  .lp-hero {
+    min-height: auto;
+    padding-block: clamp(40px, 10vh, 72px);
+  }
+  .lp-hero__cue {
+    position: static;
+    transform: none;
+    display: block;
+    margin-top: 28px;
+  }
+  .lp-section,
+  .lp-statement,
+  .lp-games,
+  .lp-pro,
+  .lp-final {
+    padding-block: 52px;
+  }
+  .lp-band {
+    padding-block: 60px;
+  }
+  .lp-section__title {
+    margin-bottom: 26px;
+  }
+  .lp-cards {
+    gap: 12px;
+  }
+  .lp-card {
+    min-height: 0;
+  }
+  .lp-card__icon {
+    margin: 14px 0 12px;
+  }
+  .lp-pro__inner {
+    gap: 16px;
+  }
+
   .lp-tile--1 { transform: translate(-215%, -70%) rotate(-11deg); }
   .lp-tile--2 { transform: translate(-110%, 30%) rotate(7deg); }
   .lp-tile--3 { transform: translate(-14%, -100%) rotate(-4deg); }
@@ -1353,6 +1392,34 @@ textarea {
   flex: 1;
   min-width: 200px;
   background: var(--color-cream);
+}
+
+.confirm-qr {
+  margin-top: 24px;
+}
+.confirm-qr__img {
+  width: 200px;
+  height: 200px;
+  border-radius: 14px;
+  border: 1px solid var(--color-border);
+  background: #fff;
+  padding: 8px;
+}
+.confirm-qr__caption {
+  font-size: 13px;
+  color: var(--color-ink-soft);
+  margin: 10px auto 14px;
+  max-width: 340px;
+}
+.confirm-qr__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.confirm-qr__actions .btn {
+  font-size: 14px;
+  padding: 10px 18px;
 }
 
 /* ============================================================

@@ -25,6 +25,15 @@
         <button class="btn btn-primary" id="copy-btn" type="button">Copy link</button>
       </div>
 
+      <div class="confirm-qr">
+        <img src="<%= qrDataUrl %>" alt="QR code for the game link" class="confirm-qr__img" />
+        <p class="confirm-qr__caption">Or let them scan this. Print it, screenshot it, put it on a card.</p>
+        <div class="confirm-qr__actions">
+          <button class="btn btn-secondary" id="share-btn" type="button" hidden>Share…</button>
+          <a class="btn btn-secondary" id="qr-download" href="<%= qrDataUrl %>" download="joue-joue-qr.png">Save QR image</a>
+        </div>
+      </div>
+
       <p style="margin-top: 28px;"><a href="/" class="nav-underline">← Back to home</a></p>
     </section>
 
@@ -32,6 +41,7 @@
   </div>
 
   <script>
+    var shareUrl = <%- JSON.stringify(shareUrl) %>;
     document.getElementById('copy-btn').addEventListener('click', async () => {
       const input = document.getElementById('share-url');
       input.select();
@@ -45,6 +55,16 @@
         // clipboard API unavailable, the input is already selected for manual copy
       }
     });
+
+    // Native share sheet where the browser supports it (phones, mostly) —
+    // lets them fire the link straight into whatever messaging app.
+    var shareBtn = document.getElementById('share-btn');
+    if (navigator.share) {
+      shareBtn.hidden = false;
+      shareBtn.addEventListener('click', function () {
+        navigator.share({ title: 'A game for you', url: shareUrl }).catch(function () {});
+      });
+    }
   </script>
   <script src="/js/games/shared.js"></script>
   <script src="/js/emoji-field.js"></script>
