@@ -1037,7 +1037,9 @@ textarea {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 2px;
+  min-height: 76px;
   border: 2px solid var(--color-border);
   border-radius: 12px;
   padding: 10px 6px;
@@ -1054,7 +1056,18 @@ textarea {
   width: 0;
   height: 0;
 }
+/* A fixed-size box around the glyph itself, not just font-size + line-height
+   — different emoji carry different built-in vertical metrics in most
+   fonts (🔥 sits taller/lower than 😌 at the same font-size), which without
+   this reads as misaligned/uneven cards even though the cards themselves
+   are the same size. Centering the glyph inside its own fixed box removes
+   that per-character variance. */
 .level-choice__emoji {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
   font-size: 22px;
   line-height: 1;
 }
