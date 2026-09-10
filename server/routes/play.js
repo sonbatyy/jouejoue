@@ -43,8 +43,21 @@ router.get("/play/:token", async (req, res) => {
     });
   }
 
+  // If this instance came from a company QR code, its batch may carry a
+  // logo + accent colour so the play screen reads as the company's, not
+  // JoueJoue's.
+  const branded = db
+    .prepare(
+      `SELECT b.logo_url AS logoUrl, b.accent_color AS accent
+       FROM company_codes c JOIN company_batches b ON b.id = c.batch_id
+       WHERE c.instance_token = ?`
+    )
+    .get(instance.token);
+  const branding = branded && (branded.logoUrl || branded.accent) ? branded : null;
+
   res.render("play", {
     template,
+    branding,
     playData: {
       token: instance.token,
       templateSlug: template.slug,

@@ -9,19 +9,8 @@
   <div class="container">
     <%- include('layout-partials/nav') %>
 
-    <section class="brand-splash" aria-label="JoueJoue">
-      <img src="/images/jouejoue-wordmark.svg" alt="JoueJoue" class="brand-splash__logo" />
-      <p class="brand-splash__slogan">A tiny gesture, sent as a game.</p>
-      <span class="brand-splash__scroll" aria-hidden="true">↓</span>
-    </section>
-
-    <section class="section hero hero--minimal">
-      <div class="hero__stickers" aria-hidden="true">
-        <span class="hero__sticker hero__sticker--1">🎂</span>
-        <span class="hero__sticker hero__sticker--2">🦆</span>
-        <span class="hero__sticker hero__sticker--3">🐦</span>
-        <span class="hero__sticker hero__sticker--4">🍓</span>
-      </div>
+    <section class="hero hero--full">
+      <img src="/images/jouejoue-wordmark.svg" alt="JoueJoue" class="hero__logo" />
       <h1>Turn your question into a game only <span class="wash-text">they</span> can answer.</h1>
       <p class="hero__subhead">
         Pick a minigame, write what you want to ask, send the link. They play, then their answer lands straight in your inbox.
@@ -35,28 +24,6 @@
     <%- include('layout-partials/footer') %>
   </div>
 
-  <script>
-    // The big brand logo drifts up and fades as you scroll toward the hero
-    // — "moves away" to hand the screen over to the actual pitch. Pure
-    // transform/opacity on scroll, no layout thrash; skipped entirely for
-    // reduced-motion.
-    (function () {
-      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      var splash = document.querySelector('.brand-splash');
-      if (!splash) return;
-      var ticking = false;
-      function update() {
-        var y = window.scrollY || 0;
-        var progress = Math.min(y / 320, 1);
-        splash.style.opacity = String(1 - progress);
-        splash.style.transform = 'translateY(' + (-y * 0.4) + 'px)';
-        ticking = false;
-      }
-      window.addEventListener('scroll', function () {
-        if (!ticking) { window.requestAnimationFrame(update); ticking = true; }
-      }, { passive: true });
-    })();
-  </script>
   <script src="/js/reveal.js"></script>
   <script src="/js/games/shared.js"></script>
   <script src="/js/emoji-field.js"></script>

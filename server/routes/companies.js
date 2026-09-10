@@ -135,6 +135,7 @@ function validateBatchConfig(c) {
   if (!c.quantity || c.quantity < MIN_QUANTITY) return `Minimum order is ${MIN_QUANTITY} codes.`;
   if (c.mode === "fixed" && !c.defaultQuestion) return "A fixed batch needs a question.";
   if (c.accentColor && !/^#[0-9a-fA-F]{3,8}$/.test(c.accentColor)) return "Accent colour must be a hex value like #cf5d3b.";
+  if (c.logoUrl && !/^https:\/\/\S+$/.test(c.logoUrl)) return "Logo URL must be a full https:// address.";
   return null;
 }
 
@@ -287,7 +288,7 @@ async function logScan(req, codeId) {
   );
 }
 
-function createInstanceForCode(found, { question, note, buyerEmail, recipientName }) {
+function createInstanceForCode(found, { question, note, buyerEmail, recipientName, senderName }) {
   const { code, batch, template } = found;
   const isTaken = (candidate) => !!db.prepare("SELECT 1 FROM game_instances WHERE token = ?").get(candidate);
   const token = generatePersonalizedToken(recipientName || batch.default_question || "gift", isTaken);
@@ -303,12 +304,17 @@ function createInstanceForCode(found, { question, note, buyerEmail, recipientNam
     question,
     now,
     computeExpiry(now),
-    batch.company_id ? db.prepare("SELECT name FROM companies WHERE id = ?").get(batch.company_id).name : "",
+    senderName || "",
     note || "",
     batch.level
   );
   db.prepare("UPDATE company_codes SET instance_token = ?, personalized = 1 WHERE id = ?").run(token, code.id);
   return token;
+}
+
+function companyName(companyId) {
+  const row = db.prepare("SELECT name FROM companies WHERE id = ?").get(companyId);
+  return row ? row.name : "";
 }
 
 router.get("/g/:shortcode", async (req, res) => {
@@ -322,13 +328,16 @@ router.get("/g/:shortcode", async (req, res) => {
   if (found.batch.mode === "personalized") {
     return res.redirect(`/g/${req.params.shortcode}/setup`);
   }
-  // Fixed: create the instance now, on first scan.
+  // Fixed: create the instance now, on first scan. The company is the
+  // sender and (for a fixed batch) the answer recipient.
   const token = createInstanceForCode(found, {
     question: found.batch.default_question,
-    buyerEmail: found.batch.answers_to === "company"
-      ? db.prepare("SELECT contact_email FROM companies WHERE id = ?").get(found.batch.company_id).contact_email
-      : "",
+    buyerEmail:
+      found.batch.answers_to === "company"
+        ? db.prepare("SELECT contact_email FROM companies WHERE id = ?").get(found.batch.company_id).contact_email
+        : "",
     recipientName: "",
+    senderName: companyName(found.batch.company_id),
   });
   res.redirect(`/play/${token}`);
 });
@@ -354,10 +363,11 @@ router.post("/g/:shortcode/setup", (req, res) => {
   const note = String(req.body.note || "").trim();
   const buyerEmail = String(req.body.buyerEmail || "").trim();
   const recipientName = String(req.body.recipientName || "").trim();
+  const senderName = String(req.body.senderName || "").trim();
   if (!question) return res.status(400).send("Please write a question.");
   if (!EMAIL_RE.test(buyerEmail)) return res.status(400).send("Please enter a valid email for the answer.");
 
-  const token = createInstanceForCode(found, { question, note, buyerEmail, recipientName });
+  const token = createInstanceForCode(found, { question, note, buyerEmail, recipientName, senderName });
   const shareUrl = `${req.protocol}://${req.get("host")}/play/${token}`;
   res.render("company-code-ready", { shareUrl });
 });

@@ -2,8 +2,14 @@
 <html lang="en">
 <head>
   <%- include('layout-partials/head', { title: template.name }) %>
+  <% if (typeof branding !== 'undefined' && branding && branding.accent) { %>
+    <style>:root { --color-accent: <%= branding.accent %>; --color-accent-dark: <%= branding.accent %>; }</style>
+  <% } %>
 </head>
 <body>
+  <% if (typeof branding !== 'undefined' && branding && branding.logoUrl) { %>
+    <img src="<%= branding.logoUrl %>" alt="" class="play-brand-logo" />
+  <% } %>
   <div class="overlay play-intro-overlay hidden" id="play-intro-overlay">
     <div class="modal-box">
       <p class="eyebrow">You've got a game</p>

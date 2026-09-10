@@ -440,59 +440,39 @@ html.js [data-reveal-stagger].is-visible > * {
 }
 
 /* ============================================================
-   Brand splash — the big-logo moment at the very top of the home
-   page, before the pitch. Animates in on load, drifts away on scroll
-   (landing.ejs inline script).
-   ============================================================ */
-.brand-splash {
-  text-align: center;
-  padding: clamp(36px, 13vh, 130px) 0 clamp(28px, 7vh, 72px);
-  will-change: transform, opacity;
-}
-.brand-splash__logo {
-  width: min(600px, 84vw);
-  height: auto;
-  display: inline-block;
-  animation: brand-splash-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-.brand-splash__slogan {
-  margin: 20px 0 0;
-  font-size: clamp(15px, 2.4vw, 21px);
-  color: var(--color-ink-soft);
-  letter-spacing: 0.02em;
-  animation: brand-splash-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.14s both;
-}
-.brand-splash__scroll {
-  display: inline-block;
-  margin-top: 30px;
-  font-size: 22px;
-  line-height: 1;
-  color: var(--color-accent);
-  animation: brand-splash-bounce 1.9s ease-in-out infinite;
-}
-@keyframes brand-splash-in {
-  from { opacity: 0; transform: translateY(18px) scale(0.96); }
-  to   { opacity: 1; transform: none; }
-}
-@keyframes brand-splash-bounce {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(7px); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .brand-splash__logo,
-  .brand-splash__slogan,
-  .brand-splash__scroll {
-    animation: none;
-  }
-}
-
-/* ============================================================
    Hero
    ============================================================ */
 .hero {
   text-align: center;
   max-width: 720px;
   margin: 0 auto;
+}
+
+/* The home page opens as one full-screen brand + pitch moment — logo,
+   headline, one line, two buttons, all centred in the first screenful,
+   nothing else competing for it. Scroll and it's simply gone. */
+.hero--full {
+  min-height: 82vh;
+  min-height: 82svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding-block: clamp(24px, 6vh, 64px);
+}
+.hero__logo {
+  width: min(420px, 74vw);
+  height: auto;
+  margin-bottom: clamp(20px, 5vh, 48px);
+  animation: hero-logo-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes hero-logo-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero__logo { animation: none; }
 }
 .hero__subhead {
   margin-top: 16px;
@@ -510,62 +490,15 @@ html.js [data-reveal-stagger].is-visible > * {
   font-size: 17px;
 }
 
-/* The stripped-down landing hero (just a headline, one line, two buttons —
-   no trust-strip/next-strip below it) leans on the buttons themselves to
-   carry weight, so they go bigger still and the hero gets a little more
-   breathing room since there's nothing crowding it underneath. */
-.hero--minimal {
-  padding-block: clamp(12px, 4vw, 36px);
-}
 .btn-lg {
   padding: 20px 36px !important;
   font-size: 18px !important;
   border-radius: 14px;
 }
 
-/* A scattered row of stickers pulled from the actual minigames — a small,
-   playful, on-brand graphic touch (not stock icons) so the hero reads as
-   "games" at a glance, especially on a phone where there's no room for a
-   big illustration. */
-.hero__stickers {
-  display: flex;
-  justify-content: center;
-  gap: 14px;
-  margin-bottom: 18px;
-}
-.hero__sticker {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-card);
-  font-size: 24px;
-  animation: sticker-bob 3.2s ease-in-out infinite;
-}
-.hero__sticker--1 { transform: rotate(-8deg); background: var(--color-accent-soft); animation-delay: 0s; }
-.hero__sticker--2 { transform: rotate(6deg); background: var(--color-tone-brown-soft); animation-delay: 0.3s; }
-.hero__sticker--3 { transform: rotate(-4deg); background: var(--color-blush); animation-delay: 0.6s; }
-.hero__sticker--4 { transform: rotate(9deg); background: var(--color-ink-soft-bg); animation-delay: 0.9s; }
-
-@keyframes sticker-bob {
-  0%, 100% { translate: 0 0; }
-  50% { translate: 0 -6px; }
-}
-
 @media (max-width: 480px) {
-  .hero__sticker {
-    width: 44px;
-    height: 44px;
-    font-size: 20px;
-    border-radius: 13px;
-  }
-  .hero__stickers {
-    gap: 10px;
-    margin-bottom: 12px;
+  .hero__logo {
+    width: min(320px, 72vw);
   }
   /* A tighter, denser rhythm on phones — less side margin, smaller
      headline/body sizes, less vertical air between sections — instead of
@@ -587,12 +520,6 @@ html.js [data-reveal-stagger].is-visible > * {
   .section-tight {
     padding-block: clamp(10px, 3vw, 18px);
   }
-  .trust-strip {
-    gap: 9px;
-  }
-  .next-strip {
-    gap: 10px;
-  }
   /* The bigger .btn padding (from making CTAs "more inciting") no longer
      fits two hero buttons on one line under ~380px — they wrapped to a
      full-width stack instead of sitting side by side. */
@@ -603,12 +530,6 @@ html.js [data-reveal-stagger].is-visible > * {
   .hero__actions--big .btn-lg {
     padding: 15px 20px !important;
     font-size: 16px !important;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero__sticker {
-    animation: none;
   }
 }
 
@@ -1512,6 +1433,20 @@ textarea {
   margin-top: 10px;
 }
 .hidden { display: none !important; }
+
+/* A company's own logo, top-left of the play screen, when the game came
+   from one of their QR codes. */
+.play-brand-logo {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  max-height: 34px;
+  max-width: 130px;
+  width: auto;
+  height: auto;
+  z-index: 20;
+  opacity: 0.92;
+}
 
 .play-intro-overlay__note {
   background: var(--color-cream);
