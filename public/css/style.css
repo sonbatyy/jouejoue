@@ -958,6 +958,48 @@ textarea {
   margin-top: 14px;
 }
 
+/* Delivery-method choice on the buy form (send it myself vs. email the
+   recipient directly) — a fieldset of two big tappable option cards rather
+   than a plain radio list, so the tradeoff each one implies is readable at
+   a glance, not just a one-line label. */
+.delivery-choice {
+  border: none;
+  padding: 0;
+  margin: 14px 0 0;
+}
+.delivery-choice legend {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 6px;
+  padding: 0;
+}
+.delivery-choice__option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border: 2px solid var(--color-border);
+  border-radius: 10px;
+  padding: 11px 13px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  font-weight: 400;
+  font-size: 14px;
+}
+.delivery-choice__option:has(input:checked) {
+  border-color: var(--color-accent);
+  background: var(--color-cream);
+}
+.delivery-choice__option input {
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+.delivery-choice__option span {
+  color: var(--color-ink-soft);
+}
+.delivery-choice__option strong {
+  color: var(--color-ink);
+}
+
 /* ============================================================
    Mock checkout
    ============================================================ */
@@ -1324,6 +1366,16 @@ textarea {
   margin-top: 10px;
 }
 .hidden { display: none !important; }
+
+.play-intro-overlay__note {
+  background: var(--color-cream);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 14px 0 18px;
+  font-size: 15px;
+  font-style: italic;
+  color: var(--color-ink);
+}
 
 /* ============================================================
    Footer

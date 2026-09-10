@@ -21,7 +21,7 @@
         <h3>Set up your game</h3>
         <p style="font-size: 14px; margin-top: 4px;">This gets sent to whoever plays it. Write it however you'd actually ask.</p>
 
-        <form method="POST" action="/api/instances">
+        <form method="POST" action="/api/instances" id="instance-form">
           <input type="hidden" name="templateId" value="<%= template.id %>" />
 
           <label for="recipientName">Their name</label>
@@ -30,8 +30,31 @@
           <label for="question">Your question</label>
           <textarea id="question" name="question" placeholder="What should we do this weekend?" required></textarea>
 
+          <label for="note">A note (optional)</label>
+          <textarea id="note" name="note" placeholder="Anything you want them to read before they play — a hello, a reason, an inside joke."></textarea>
+
+          <label for="senderName">Your full name</label>
+          <input type="text" id="senderName" name="senderName" placeholder="So they know it's from you" required />
+
           <label for="buyerEmail">Your email (we'll send the answer here)</label>
           <input type="email" id="buyerEmail" name="buyerEmail" placeholder="you@example.com" required />
+
+          <fieldset class="delivery-choice">
+            <legend>How should they get it?</legend>
+            <label class="delivery-choice__option">
+              <input type="radio" name="deliveryMethod" value="link" checked />
+              <span><strong>I'll send it myself</strong> — you get a link to copy and send however you want.</span>
+            </label>
+            <label class="delivery-choice__option">
+              <input type="radio" name="deliveryMethod" value="email" />
+              <span><strong>Email it to them directly</strong> — we send them the link, your name, and your note.</span>
+            </label>
+          </fieldset>
+
+          <div id="recipient-email-field" hidden>
+            <label for="recipientEmail">Their email</label>
+            <input type="email" id="recipientEmail" name="recipientEmail" placeholder="them@example.com" />
+          </div>
 
           <button type="submit" class="btn btn-primary">Create my game link</button>
         </form>
@@ -40,6 +63,20 @@
 
     <%- include('layout-partials/footer') %>
   </div>
+  <script>
+    (function () {
+      var radios = document.querySelectorAll('input[name="deliveryMethod"]');
+      var emailField = document.getElementById('recipient-email-field');
+      var emailInput = document.getElementById('recipientEmail');
+      function sync() {
+        var isEmail = document.querySelector('input[name="deliveryMethod"]:checked').value === 'email';
+        emailField.hidden = !isEmail;
+        emailInput.required = isEmail;
+      }
+      radios.forEach(function (r) { r.addEventListener('change', sync); });
+      sync();
+    })();
+  </script>
   <script src="/js/games/shared.js"></script>
   <script src="/js/emoji-field.js"></script>
 </body>

@@ -49,6 +49,8 @@ router.get("/play/:token", async (req, res) => {
       templateSlug: template.slug,
       question: instance.question,
       recipientName: instance.recipient_name,
+      senderName: instance.sender_name || "",
+      note: instance.note || "",
     },
   });
 });

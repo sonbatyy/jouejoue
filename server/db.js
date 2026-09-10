@@ -18,6 +18,18 @@ const instanceColumns = db.prepare("PRAGMA table_info(game_instances)").all().ma
 if (!instanceColumns.includes("recipient_name")) {
   db.exec("ALTER TABLE game_instances ADD COLUMN recipient_name TEXT NOT NULL DEFAULT ''");
 }
+if (!instanceColumns.includes("sender_name")) {
+  db.exec("ALTER TABLE game_instances ADD COLUMN sender_name TEXT NOT NULL DEFAULT ''");
+}
+if (!instanceColumns.includes("note")) {
+  db.exec("ALTER TABLE game_instances ADD COLUMN note TEXT NOT NULL DEFAULT ''");
+}
+if (!instanceColumns.includes("delivery_method")) {
+  db.exec("ALTER TABLE game_instances ADD COLUMN delivery_method TEXT NOT NULL DEFAULT 'link'");
+}
+if (!instanceColumns.includes("recipient_email")) {
+  db.exec("ALTER TABLE game_instances ADD COLUMN recipient_email TEXT");
+}
 
 const customRequestColumns = db.prepare("PRAGMA table_info(custom_game_requests)").all().map((c) => c.name);
 if (!customRequestColumns.includes("template_id")) {

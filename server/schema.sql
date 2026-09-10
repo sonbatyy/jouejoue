@@ -10,18 +10,22 @@ CREATE TABLE IF NOT EXISTS game_templates (
 );
 
 CREATE TABLE IF NOT EXISTS game_instances (
-  id             INTEGER PRIMARY KEY AUTOINCREMENT,
-  template_id    INTEGER NOT NULL REFERENCES game_templates(id),
-  token          TEXT UNIQUE NOT NULL,
-  buyer_email    TEXT NOT NULL,
-  recipient_name TEXT NOT NULL DEFAULT '',   -- who's playing, so the win screen can say "Bravo <name>"
-  question       TEXT NOT NULL,
-  status         TEXT NOT NULL DEFAULT 'pending',  -- pending | answered
-  answer         TEXT,
-  answered_at    INTEGER,
-  created_at     INTEGER NOT NULL,
-  expires_at     INTEGER NOT NULL,
-  renewed_count  INTEGER NOT NULL DEFAULT 0
+  id              INTEGER PRIMARY KEY AUTOINCREMENT,
+  template_id     INTEGER NOT NULL REFERENCES game_templates(id),
+  token           TEXT UNIQUE NOT NULL,
+  buyer_email     TEXT NOT NULL,
+  recipient_name  TEXT NOT NULL DEFAULT '',   -- who's playing, so the win screen can say "Bravo <name>"
+  question        TEXT NOT NULL,
+  status          TEXT NOT NULL DEFAULT 'pending',  -- pending | answered
+  answer          TEXT,
+  answered_at     INTEGER,
+  created_at      INTEGER NOT NULL,
+  expires_at      INTEGER NOT NULL,
+  renewed_count   INTEGER NOT NULL DEFAULT 0,
+  sender_name     TEXT NOT NULL DEFAULT '',   -- who it's from, shown to the recipient
+  note            TEXT NOT NULL DEFAULT '',   -- optional personal message, separate from the game question
+  delivery_method TEXT NOT NULL DEFAULT 'link',  -- 'link' (buyer sends it themselves) | 'email' (we email the recipient directly)
+  recipient_email TEXT                        -- only set when delivery_method = 'email'
 );
 CREATE INDEX IF NOT EXISTS idx_game_instances_token ON game_instances(token);
 

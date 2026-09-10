@@ -293,4 +293,33 @@ function sendCustomRequestReceipt({ buyerEmail, templateName, priceDisplay, game
   logStub("custom request receipt", [["To", buyerEmail], ["Game", templateName], ["Price", priceDisplay], ["Idea", gameIdea], ["Purpose", purpose]]);
 }
 
-module.exports = { sendAnswerNotification, sendContactNotification, sendPurchaseReceipt, sendRenewalReceipt, sendCustomRequestReceipt };
+// Sent when the buyer chooses "email it to them directly" on the buy form
+// (server/routes/purchase.js, POST /api/instances) instead of copying the
+// link themselves — this is the recipient's actual invite, not a receipt,
+// so it goes to recipientEmail, not buyerEmail.
+function sendGameInvite({ recipientEmail, recipientName, senderName, note, templateName, shareUrl }) {
+  const mode = process.env.EMAIL_MODE || "console";
+  const subject = `${senderName} sent you a game`;
+
+  if (mode === "resend") {
+    sendViaResend({
+      to: recipientEmail,
+      subject,
+      preheader: `${senderName} sent you a tiny game to answer — takes under a minute.`,
+      html: emailShell({
+        kicker: "JoueJoue · You've got a game",
+        bodyHtml: `
+          <h1 style="font-size: 22px; margin: 0 0 16px; line-height: 1.3;">${escapeHtml(senderName)} sent this to you${recipientName ? `, ${escapeHtml(recipientName)}` : ""}.</h1>
+          ${note ? `<div style="background: #fbf1e6; border-radius: 12px; padding: 16px 18px; margin-bottom: 20px;"><p style="margin: 0; font-size: 15px; font-style: italic; white-space: pre-wrap;">&ldquo;${escapeHtml(note)}&rdquo;</p></div>` : ""}
+          <p style="margin: 0 0 20px; color: #6f6258; font-size: 14px;">Play ${escapeHtml(templateName)} to see what they're asking — it takes under a minute.</p>
+          <a href="${escapeHtml(shareUrl)}" style="display: inline-block; background: #cf5d3b; color: #fff; font-weight: 700; text-decoration: none; padding: 13px 24px; border-radius: 10px; font-size: 15px;">Play now</a>
+        `,
+      }),
+    });
+    return;
+  }
+
+  logStub("game invite", [["To", recipientEmail], ["From", senderName], ["For", recipientName], ["Game", templateName], ["Note", note], ["Link", shareUrl]]);
+}
+
+module.exports = { sendAnswerNotification, sendContactNotification, sendPurchaseReceipt, sendRenewalReceipt, sendCustomRequestReceipt, sendGameInvite };

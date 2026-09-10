@@ -3,7 +3,7 @@ const db = require("../db");
 const { generatePersonalizedToken } = require("../lib/tokens");
 const { computeExpiry } = require("../lib/expiry");
 const { resolveCurrency, withLocalizedPrice, allLocalizedPrices, localizedPrice, SWITCHABLE_CURRENCIES } = require("../lib/pricing");
-const { sendPurchaseReceipt } = require("../lib/email");
+const { sendPurchaseReceipt, sendGameInvite } = require("../lib/email");
 
 const router = express.Router();
 
@@ -52,6 +52,10 @@ router.post("/api/instances", async (req, res) => {
   const buyerEmail = String(req.body.buyerEmail || "").trim();
   const recipientName = String(req.body.recipientName || "").trim();
   const question = String(req.body.question || "").trim();
+  const senderName = String(req.body.senderName || "").trim();
+  const note = String(req.body.note || "").trim();
+  const deliveryMethod = req.body.deliveryMethod === "email" ? "email" : "link";
+  const recipientEmail = String(req.body.recipientEmail || "").trim();
 
   const template = db
     .prepare("SELECT * FROM game_templates WHERE id = ? AND is_custom_tier = 0")
@@ -60,6 +64,10 @@ router.post("/api/instances", async (req, res) => {
   if (!recipientName) return res.status(400).send("Please enter their name.");
   if (!EMAIL_RE.test(buyerEmail)) return res.status(400).send("Please enter a valid email.");
   if (!question) return res.status(400).send("Please write a question.");
+  if (!senderName) return res.status(400).send("Please enter your name.");
+  if (deliveryMethod === "email" && !EMAIL_RE.test(recipientEmail)) {
+    return res.status(400).send("Please enter a valid email for the recipient.");
+  }
 
   // A link that reads as "made for Juju" instead of a random string —
   // the isTaken check keeps it safe if the same name buys twice.
@@ -68,18 +76,42 @@ router.post("/api/instances", async (req, res) => {
   const token = generatePersonalizedToken(recipientName, isTaken);
   const now = Date.now();
   db.prepare(`
-    INSERT INTO game_instances (template_id, token, buyer_email, recipient_name, question, status, created_at, expires_at)
-    VALUES (?, ?, ?, ?, ?, 'pending', ?, ?)
-  `).run(template.id, token, buyerEmail, recipientName, question, now, computeExpiry(now));
+    INSERT INTO game_instances (template_id, token, buyer_email, recipient_name, question, status, created_at, expires_at, sender_name, note, delivery_method, recipient_email)
+    VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?)
+  `).run(
+    template.id,
+    token,
+    buyerEmail,
+    recipientName,
+    question,
+    now,
+    computeExpiry(now),
+    senderName,
+    note,
+    deliveryMethod,
+    deliveryMethod === "email" ? recipientEmail : null
+  );
 
+  const shareUrl = `${req.protocol}://${req.get("host")}/play/${token}`;
   const currency = await resolveCurrency(req);
   sendPurchaseReceipt({
     buyerEmail,
     templateName: template.name,
     recipientName,
     priceDisplay: localizedPrice(template, currency),
-    shareUrl: `${req.protocol}://${req.get("host")}/play/${token}`,
+    shareUrl,
   });
+
+  if (deliveryMethod === "email") {
+    sendGameInvite({
+      recipientEmail,
+      recipientName,
+      senderName,
+      note,
+      templateName: template.name,
+      shareUrl,
+    });
+  }
 
   res.redirect(`/confirmation/${token}`);
 });

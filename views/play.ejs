@@ -4,6 +4,17 @@
   <%- include('layout-partials/head', { title: template.name }) %>
 </head>
 <body>
+  <div class="overlay play-intro-overlay hidden" id="play-intro-overlay">
+    <div class="modal-box">
+      <p class="eyebrow">You've got a game</p>
+      <h2><%= playData.senderName %> sent this to you<% if (playData.recipientName) { %>, <%= playData.recipientName %><% } %>.</h2>
+      <% if (playData.note) { %>
+        <p class="play-intro-overlay__note">&ldquo;<%= playData.note %>&rdquo;</p>
+      <% } %>
+      <button type="button" class="btn btn-primary" id="play-intro-start">Let's play</button>
+    </div>
+  </div>
+
   <div class="play-shell">
     <% if (playData.templateSlug === 'cake-catch') { %>
       <div class="play-instructions">Catch the cake and drag it into the mouse's mouth.</div>

@@ -10,9 +10,15 @@
     <%- include('layout-partials/nav') %>
 
     <section class="section-tight" style="text-align: center; max-width: 560px; margin: 0 auto;">
-      <p class="eyebrow">Ready to send</p>
-      <h1 style="font-size: 30px;">Your <%= template.name %> link is live</h1>
-      <p>Send this to whoever you're asking. It stays live for a month, and you'll get an email the moment they answer.</p>
+      <% if (instance.delivery_method === 'email') { %>
+        <p class="eyebrow">Sent!</p>
+        <h1 style="font-size: 30px;">We emailed it to <%= instance.recipient_name %></h1>
+        <p>It went straight to <%= instance.recipient_email %> with your name and note attached. It stays live for a month, and you'll get an email the moment they answer.</p>
+      <% } else { %>
+        <p class="eyebrow">Ready to send</p>
+        <h1 style="font-size: 30px;">Your <%= template.name %> link is live</h1>
+        <p>Send this to whoever you're asking. It stays live for a month, and you'll get an email the moment they answer.</p>
+      <% } %>
 
       <div class="share-box">
         <input type="text" id="share-url" value="<%= shareUrl %>" readonly />

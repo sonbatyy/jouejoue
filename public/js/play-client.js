@@ -1,5 +1,5 @@
 (function () {
-  const { token, templateSlug, question, recipientName } = window.__PLAY__;
+  const { token, templateSlug, question, recipientName, senderName } = window.__PLAY__;
   const containerEl = document.querySelector(".play-shell");
 
   function submitAnswer(answer, { onSuccess, onError }) {
@@ -32,10 +32,26 @@
     cooking: window.initCooking,
   };
 
-  const init = GAME_REGISTRY[templateSlug];
-  if (init) {
-    init({ containerEl, onWin });
+  function startGame() {
+    const init = GAME_REGISTRY[templateSlug];
+    if (init) {
+      init({ containerEl, onWin });
+    } else {
+      containerEl.innerHTML = '<p style="padding: 40px; text-align: center;">This game type isn\'t supported yet.</p>';
+    }
+  }
+
+  // Older instances (created before sender name/note existed) have neither
+  // — skip straight to the game rather than showing a blank "sent this to
+  // you" card with nobody's name on it.
+  const introOverlay = document.getElementById("play-intro-overlay");
+  if (senderName && introOverlay) {
+    introOverlay.classList.remove("hidden");
+    document.getElementById("play-intro-start").addEventListener("click", () => {
+      introOverlay.classList.add("hidden");
+      startGame();
+    });
   } else {
-    containerEl.innerHTML = '<p style="padding: 40px; text-align: center;">This game type isn\'t supported yet.</p>';
+    startGame();
   }
 })();
