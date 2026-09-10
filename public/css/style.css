@@ -796,6 +796,12 @@ html.js [data-reveal-stagger].is-visible > * {
 @media (min-width: 640px) {
   .tiers { grid-template-columns: 1fr 1fr; }
 }
+/* Three tiers (Bank Game / Custom Game / Monthly Plan) need more room per
+   card than two do — jumping straight from 1 to 3 columns at a wider
+   breakpoint avoids an awkward 2-then-1 wrap in between. */
+@media (min-width: 900px) {
+  .tiers--three { grid-template-columns: 1fr 1fr 1fr; }
+}
 .tier {
   padding: 22px;
   border-top: 1px solid var(--color-border);
@@ -843,41 +849,6 @@ html.js [data-reveal-stagger].is-visible > * {
   content: "✓ ";
   color: var(--color-accent);
   font-weight: 700;
-}
-
-/* Subscription promo on the pricing page — a wide banner, not a small
-   teaser card, so it reads with the same weight as the two tiers above it
-   instead of like an afterthought. Full detail already lives on /subscribe
-   itself, so this only needs one line to earn the click. */
-.sub-banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  flex-wrap: wrap;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
-  padding: 28px 32px;
-  text-decoration: none;
-  color: inherit;
-}
-.sub-banner__heading {
-  font-size: 26px;
-  margin: 6px 0 0;
-}
-.sub-banner__cta {
-  flex-shrink: 0;
-}
-@media (max-width: 640px) {
-  .sub-banner {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 24px;
-  }
-  .sub-banner__cta {
-    width: 100%;
-  }
 }
 
 /* ============================================================

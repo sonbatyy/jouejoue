@@ -16,7 +16,7 @@
     </section>
 
     <section class="section-tight">
-      <div class="tiers" data-reveal>
+      <div class="tiers tiers--three" data-reveal>
         <div class="tier lift">
           <h3>Bank Game</h3>
           <div class="tier__price"><%= bankGameRange.display %></div>
@@ -40,17 +40,18 @@
           </ul>
           <a href="/custom-payment/<%= customTier.id %>" class="btn btn-primary btn-fun" style="width: 100%;">Request a custom game <span class="btn-fun__icon">▶</span></a>
         </div>
-      </div>
-    </section>
-
-    <section class="section-tight" data-reveal>
-      <a href="/subscribe" class="sub-banner lift">
-        <div>
-          <span class="tier__badge">Monthly · from 300 EGP</span>
-          <h3 class="sub-banner__heading">A new game, every month.</h3>
+        <div class="tier lift">
+          <h3>Monthly Plan</h3>
+          <div class="tier__price">From 300 EGP</div>
+          <p>Set someone up once. A new game reaches them automatically, every month.</p>
+          <ul class="tier__features">
+            <li>Surprise or personalized</li>
+            <li>Cancel anytime</li>
+            <li>Nothing auto-charges</li>
+          </ul>
+          <a href="/subscribe" class="btn btn-secondary btn-fun" style="width: 100%;">See the plans <span class="btn-fun__icon">▶</span></a>
         </div>
-        <span class="btn btn-primary btn-fun sub-banner__cta">See the plans <span class="btn-fun__icon">▶</span></span>
-      </a>
+      </div>
     </section>
 
     <section class="section-tight" style="text-align: center;" data-reveal>

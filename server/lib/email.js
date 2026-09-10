@@ -229,7 +229,7 @@ function sendPurchaseReceipt({ buyerEmail, templateName, recipientName, priceDis
       html: emailShell({
         kicker: "JoueJoue · Receipt",
         bodyHtml: `
-          <h1 style="font-size: 22px; margin: 0 0 16px;">Thanks — it's on its way to ${escapeHtml(recipientName)}.</h1>
+          <h1 style="font-size: 22px; margin: 0 0 16px;">Thanks. It's on its way to ${escapeHtml(recipientName)}.</h1>
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
             ${receiptHeaderRows(receiptNumber, date)}
             ${receiptSummaryRow(templateName, priceDisplay)}
@@ -238,7 +238,7 @@ function sendPurchaseReceipt({ buyerEmail, templateName, recipientName, priceDis
           </table>
           <p style="margin: 0 0 6px; color: #6f6258; font-size: 14px;">Their link:</p>
           <p style="margin: 0 0 20px; font-size: 15px; word-break: break-all;"><a href="${escapeHtml(shareUrl)}" style="color: #cf5d3b;">${escapeHtml(shareUrl)}</a></p>
-          <p style="color: #a89a8d; font-size: 12px; margin: 0;">Paid via mock checkout — this is a prototype, no card processor is connected and no money actually moved.</p>
+          <p style="color: #a89a8d; font-size: 12px; margin: 0;">Paid via mock checkout. This is a prototype, no card processor is connected and no money actually moved.</p>
           ${viewReceiptLink(receiptNumber)}
         `,
       }),
@@ -261,15 +261,15 @@ function sendRenewalReceipt({ buyerEmail, templateName, recipientName, priceDisp
       html: emailShell({
         kicker: "JoueJoue · Receipt",
         bodyHtml: `
-          <h1 style="font-size: 22px; margin: 0 0 16px;">Renewed — ${escapeHtml(recipientName)}'s link stays live.</h1>
+          <h1 style="font-size: 22px; margin: 0 0 16px;">Renewed. ${escapeHtml(recipientName)}'s link stays live.</h1>
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
             ${receiptHeaderRows(receiptNumber, date)}
-            ${receiptSummaryRow(`${templateName} — renewal`, priceDisplay)}
+            ${receiptSummaryRow(`${templateName} (renewal)`, priceDisplay)}
             ${receiptSummaryRow("New expiry", newExpiryDate)}
           </table>
           <p style="margin: 0 0 6px; color: #6f6258; font-size: 14px;">The link, unchanged:</p>
           <p style="margin: 0 0 20px; font-size: 15px; word-break: break-all;"><a href="${escapeHtml(shareUrl)}" style="color: #cf5d3b;">${escapeHtml(shareUrl)}</a></p>
-          <p style="color: #a89a8d; font-size: 12px; margin: 0;">Paid via mock checkout — this is a prototype, no card processor is connected and no money actually moved.</p>
+          <p style="color: #a89a8d; font-size: 12px; margin: 0;">Paid via mock checkout. This is a prototype, no card processor is connected and no money actually moved.</p>
           ${viewReceiptLink(receiptNumber)}
         `,
       }),
@@ -294,7 +294,7 @@ function sendCustomRequestReceipt({ buyerEmail, templateName, priceDisplay, game
       html: emailShell({
         kicker: "JoueJoue · Receipt",
         bodyHtml: `
-          <h1 style="font-size: 22px; margin: 0 0 16px;">Got it — we're building your custom game.</h1>
+          <h1 style="font-size: 22px; margin: 0 0 16px;">Got it. We're building your custom game.</h1>
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
             ${receiptHeaderRows(receiptNumber, date)}
             ${receiptSummaryRow(templateName, priceDisplay)}
@@ -304,7 +304,7 @@ function sendCustomRequestReceipt({ buyerEmail, templateName, priceDisplay, game
             <p style="margin: 0 0 10px; font-size: 15px; white-space: pre-wrap;"><strong>Idea:</strong> ${escapeHtml(gameIdea)}</p>
             <p style="margin: 0; font-size: 15px; white-space: pre-wrap;"><strong>For:</strong> ${escapeHtml(purpose)}</p>
           </div>
-          <p style="color: #a89a8d; font-size: 12px; margin: 0;">We'll reply by email with your link once it's ready. Paid via mock checkout — this is a prototype, no card processor is connected and no money actually moved.</p>
+          <p style="color: #a89a8d; font-size: 12px; margin: 0;">We'll reply by email with your link once it's ready. Paid via mock checkout. This is a prototype, no card processor is connected and no money actually moved.</p>
           ${viewReceiptLink(receiptNumber)}
         `,
       }),
@@ -327,13 +327,13 @@ function sendGameInvite({ recipientEmail, recipientName, senderName, note, templ
     sendViaResend({
       to: recipientEmail,
       subject,
-      preheader: `${senderName} sent you a tiny game to answer — takes under a minute.`,
+      preheader: `${senderName} sent you a tiny game to answer. Takes under a minute.`,
       html: emailShell({
         kicker: "JoueJoue · You've got a game",
         bodyHtml: `
           <h1 style="font-size: 22px; margin: 0 0 16px; line-height: 1.3;">${escapeHtml(senderName)} sent this to you${recipientName ? `, ${escapeHtml(recipientName)}` : ""}.</h1>
           ${note ? `<div style="background: #fbf1e6; border-radius: 12px; padding: 16px 18px; margin-bottom: 20px;"><p style="margin: 0; font-size: 15px; font-style: italic; white-space: pre-wrap;">&ldquo;${escapeHtml(note)}&rdquo;</p></div>` : ""}
-          <p style="margin: 0 0 20px; color: #6f6258; font-size: 14px;">Play ${escapeHtml(templateName)} to see what they're asking — it takes under a minute.</p>
+          <p style="margin: 0 0 20px; color: #6f6258; font-size: 14px;">Play ${escapeHtml(templateName)} to see what they're asking. It takes under a minute.</p>
           <a href="${escapeHtml(shareUrl)}" style="display: inline-block; background: #cf5d3b; color: #fff; font-weight: 700; text-decoration: none; padding: 13px 24px; border-radius: 10px; font-size: 15px;">Play now</a>
         `,
       }),
@@ -353,7 +353,7 @@ function sendGameInvite({ recipientEmail, recipientName, senderName, note, templ
 // cancel link, not just a link to a page with a cancel button on it.
 function sendSubscriptionReceipt({ subscriberEmail, tierName, monthLabel, priceDisplay, detail, recipientName, templateName, shareUrl, manageUrl, cancelUrl, receiptNumber, date }) {
   const mode = process.env.EMAIL_MODE || "console";
-  const subject = `Receipt ${receiptNumber}: ${tierName} — ${monthLabel}`;
+  const subject = `Receipt ${receiptNumber}: ${tierName}, ${monthLabel}`;
 
   if (mode === "resend") {
     sendViaResend({
@@ -369,10 +369,10 @@ function sendSubscriptionReceipt({ subscriberEmail, tierName, monthLabel, priceD
             ${receiptSummaryRow("This month", detail)}
           </table>
           ${shareUrl ? `
-            <p style="margin: 0 0 6px; color: #6f6258; font-size: 14px;">Their link — send it whenever you're ready:</p>
+            <p style="margin: 0 0 6px; color: #6f6258; font-size: 14px;">Their link. Send it whenever you're ready:</p>
             <p style="margin: 0 0 20px; font-size: 15px; word-break: break-all;"><a href="${escapeHtml(shareUrl)}" style="color: #cf5d3b;">${escapeHtml(shareUrl)}</a></p>
           ` : ""}
-          <p style="color: #a89a8d; font-size: 12px; margin: 0 0 20px;">Paid via mock checkout — this is a prototype, no card processor is connected and nothing auto-charges. Come back to your subscription page once a month has passed to pull the next one.</p>
+          <p style="color: #a89a8d; font-size: 12px; margin: 0 0 20px;">Paid via mock checkout. This is a prototype, no card processor is connected and nothing auto-charges. Come back to your subscription page once a month has passed to pull the next one.</p>
           <table style="width: 100%; border-collapse: collapse;"><tr>
             <td style="padding-right: 6px;"><a href="${escapeHtml(manageUrl)}" style="display: block; text-align: center; background: #fbf1e6; color: #332a22; font-weight: 700; text-decoration: none; padding: 11px 16px; border-radius: 10px; font-size: 14px;">Manage plan</a></td>
             <td style="padding-left: 6px;"><a href="${escapeHtml(cancelUrl)}" style="display: block; text-align: center; background: #fff; border: 2px solid #ecdfc9; color: #6f6258; font-weight: 700; text-decoration: none; padding: 9px 16px; border-radius: 10px; font-size: 14px;">Cancel subscription</a></td>

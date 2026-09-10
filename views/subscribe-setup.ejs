@@ -11,9 +11,9 @@
 
     <section class="section-tight">
       <div style="text-align: center; max-width: 560px; margin: 0 auto;">
-        <p class="eyebrow">Paid — <%= tier.priceDisplay %>/mo</p>
+        <p class="eyebrow">Paid: <%= tier.priceDisplay %>/mo</p>
         <h1 style="font-size: 30px;">Who's this for?</h1>
-        <p>Set it up once — a new game reaches them every month from here.</p>
+        <p>Set it up once. A new game reaches them every month from here.</p>
       </div>
 
       <div class="form-card" style="margin-top: 24px;">
@@ -28,10 +28,10 @@
 
           <% if (tier.key === 'random') { %>
             <label for="question">Your question (asked every month)</label>
-            <textarea id="question" name="question" placeholder="Something that stays true every time — how are you, what made you smile this month..." required></textarea>
+            <textarea id="question" name="question" placeholder="Something that stays true every time: how are you, what made you smile this month..." required></textarea>
           <% } else { %>
             <label for="gameIdea">What kind of game do you want each month?</label>
-            <textarea id="gameIdea" name="gameIdea" placeholder="A quiz, a treasure hunt, something else — we'll build a new one around this every cycle." required></textarea>
+            <textarea id="gameIdea" name="gameIdea" placeholder="A quiz, a treasure hunt, something else. We'll build a new one around this every cycle." required></textarea>
           <% } %>
 
           <label for="subscriberName">Your full name</label>
