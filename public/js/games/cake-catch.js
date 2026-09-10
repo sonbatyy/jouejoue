@@ -1,23 +1,39 @@
-// Single cake that jumps around the screen; drag it into the mouse's mouth
-// to win. No decoys, no wrong guess, so there's no "game over" state.
-// Difficulty is just how often it dodges — the only real knob a "drag it
-// somewhere" game has.
+// Cake that jumps around the screen; drag it into the mouse's mouth to
+// catch it. Three rounds, no decoys, no wrong guess, so there's no
+// "game over" state either — every round ends in a catch, just a
+// progressively faster one, until the third catch wins it.
 const CAKE_CATCH_LEVELS = {
   easy: { moveIntervalMs: 1800 },
   medium: { moveIntervalMs: 1200 },
   hard: { moveIntervalMs: 700 },
 };
+const CAKE_TOTAL_ROUNDS = 3;
+// Round 1 at the level's own base pace, then each round dodges faster than
+// the last — difficulty compounds within a single playthrough, not just
+// between levels.
+const CAKE_ROUND_SPEED_MULTIPLIERS = [1, 0.75, 0.55];
+
 function initCakeCatch({ containerEl, onWin, level }) {
   const { randomPosition, placeAt, getPointer } = window.GameLib;
   const { moveIntervalMs } = CAKE_CATCH_LEVELS[level] || CAKE_CATCH_LEVELS.medium;
 
   const cake = containerEl.querySelector(".critter.cake");
   const mouth = containerEl.querySelector("#play-mouth");
+  const instructions = containerEl.querySelector(".play-instructions");
 
   let grabbed = false;
   let resolved = false;
   let moveTimer = null;
   let pointerOffset = { x: 0, y: 0 };
+  let round = 1;
+
+  function updateInstructions() {
+    if (!instructions) return;
+    instructions.textContent =
+      round < CAKE_TOTAL_ROUNDS
+        ? `Round ${round} of ${CAKE_TOTAL_ROUNDS}: catch it, feed the mouse.`
+        : `Final round: one more catch to win.`;
+  }
 
   function runAway() {
     if (grabbed || resolved) return;
@@ -32,9 +48,11 @@ function initCakeCatch({ containerEl, onWin, level }) {
     cake.style.opacity = "1";
     const { x, y } = randomPosition(containerEl, cake);
     placeAt(cake, x, y);
+    updateInstructions();
 
+    const speed = moveIntervalMs * (CAKE_ROUND_SPEED_MULTIPLIERS[round - 1] || CAKE_ROUND_SPEED_MULTIPLIERS[CAKE_ROUND_SPEED_MULTIPLIERS.length - 1]);
     clearInterval(moveTimer);
-    moveTimer = setInterval(runAway, moveIntervalMs);
+    moveTimer = setInterval(runAway, speed);
   }
 
   function onGrabStart(e) {
@@ -83,7 +101,12 @@ function initCakeCatch({ containerEl, onWin, level }) {
     );
     cake.style.opacity = "0";
 
-    setTimeout(onWin, 300);
+    if (round < CAKE_TOTAL_ROUNDS) {
+      round += 1;
+      setTimeout(startRound, 500);
+    } else {
+      setTimeout(onWin, 300);
+    }
   }
 
   cake.addEventListener("mousedown", onGrabStart);

@@ -7,12 +7,13 @@
 // "medium" is the original pace, tuned against a headless simulation
 // (aim-for-the-gap bot) to a 30/30 win rate: pipes move fast and are spaced
 // well apart (~400px), but the gap itself is still a real, reachable
-// target. easy/hard scale the win score, pipe gap, and pipe speed off that
-// same baseline rather than being separately tuned from scratch.
+// target. Harder isn't just a higher score to reach, the pipes themselves
+// get faster and the gap tighter too, so each level is a genuinely
+// different pace to play at, not just a longer version of the same one.
 const FLAPPY_LEVELS = {
-  easy: { winScore: 15, pipeGap: 460, pipeSpeed: 180 },
-  medium: { winScore: 20, pipeGap: 380, pipeSpeed: 220 },
-  hard: { winScore: 25, pipeGap: 310, pipeSpeed: 260 },
+  easy: { winScore: 20, pipeGap: 460, pipeSpeed: 180 },
+  medium: { winScore: 30, pipeGap: 380, pipeSpeed: 220 },
+  hard: { winScore: 60, pipeGap: 300, pipeSpeed: 280 },
 };
 function initFlappyBird({ containerEl, onWin, onLose, level }) {
   const { winScore, pipeGap, pipeSpeed } = FLAPPY_LEVELS[level] || FLAPPY_LEVELS.medium;

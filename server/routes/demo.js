@@ -6,7 +6,10 @@ const { GAME_ICONS } = require("../lib/gameIcons");
 const router = express.Router();
 
 const DEMO_QUESTION = "What should we try next?";
-const VALID_SLUGS = ["cake-catch", "duck-catch", "flappy-bird", "cooking"];
+// Only two games in the demo, on purpose: a quick, confident taste of two
+// very different play styles (one-tap catch, endless flap-and-dodge)
+// rather than a full arcade of everything in the bank.
+const VALID_SLUGS = ["duck-catch", "flappy-bird"];
 
 // A one-line teaser per game for the big graphic picker cards — separate
 // from game_templates.description (that copy is written for the catalog,
@@ -14,8 +17,8 @@ const VALID_SLUGS = ["cake-catch", "duck-catch", "flappy-bird", "cooking"];
 // sell someone who's still deciding whether to bother trying at all).
 const DEMO_TEASERS = {
   "cake-catch": "Drag the cake into the mouse before it runs off.",
-  "duck-catch": "One quick tap. Catch the duck, that's it.",
-  "flappy-bird": "Tap to flap. Thread the gaps, reach 20.",
+  "duck-catch": "Quick taps. Catch it three times, faster each round.",
+  "flappy-bird": "Tap to flap. Thread the gaps, reach 30.",
   cooking: "Watch the sky. Catch the right one, don't blink.",
 };
 // Choose ONE game to try — no slug in the URL yet. A demo is meant to be a

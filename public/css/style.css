@@ -1320,6 +1320,15 @@ textarea {
   font-size: 26px;
   line-height: 1;
 }
+.cooking-target-count {
+  padding-left: 4px;
+  border-left: 2px solid var(--color-border);
+}
+.cooking-target-timer {
+  padding-left: 8px;
+  border-left: 2px solid var(--color-border);
+  color: var(--color-accent);
+}
 .falling-item {
   position: absolute;
   font-size: 46px;

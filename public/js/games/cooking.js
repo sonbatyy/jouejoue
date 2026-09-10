@@ -3,28 +3,31 @@
 // whole .play-shell, and on the demo page that also holds the "Back to
 // JoueJoue" button and the game switcher as siblings.
 //
-// Fruits and vegetables fall from the top. Each round picks one target at
-// random — tap it to win. Tap anything else, or let the target fall past
-// the bottom uncaught, and you lose. One shot, no partial credit, exactly
-// as asked for. Falling is driven by a CSS transition (not
+// One target fruit is picked for the whole round. Fruits and vegetables
+// fall from the top the entire time; catch the required number of the
+// target before the clock runs out to win. Tapping the wrong one just does
+// nothing (no penalty), and the target falling through uncaught doesn't
+// end the game either, the countdown is the only real threat now, not one
+// unlucky miss. Falling is driven by a CSS transition (not
 // requestAnimationFrame), so it keeps animating correctly even in
 // contexts where rAF gets throttled.
 const COOKING_LEVELS = {
-  easy: { fallDurationMs: 5000, spawnIntervalMs: 1300, targetChance: 0.5 },
-  medium: { fallDurationMs: 4000, spawnIntervalMs: 1100, targetChance: 0.35 },
-  hard: { fallDurationMs: 3000, spawnIntervalMs: 900, targetChance: 0.25 },
+  easy: { targetCount: 3, timeLimitSec: 25, fallDurationMs: 4500, spawnIntervalMs: 1200, targetChance: 0.45 },
+  medium: { targetCount: 5, timeLimitSec: 20, fallDurationMs: 3600, spawnIntervalMs: 950, targetChance: 0.4 },
+  hard: { targetCount: 8, timeLimitSec: 18, fallDurationMs: 2600, spawnIntervalMs: 700, targetChance: 0.35 },
 };
 function initCooking({ containerEl, onWin, onLose, level }) {
-  const { fallDurationMs, spawnIntervalMs, targetChance } = COOKING_LEVELS[level] || COOKING_LEVELS.medium;
+  const { targetCount, timeLimitSec, fallDurationMs, spawnIntervalMs, targetChance } =
+    COOKING_LEVELS[level] || COOKING_LEVELS.medium;
   const ITEMS = ["🍎", "🍌", "🍇", "🍊", "🍓", "🥕", "🥦", "🍆"];
   const FALL_DURATION_MS = fallDurationMs;
   const SPAWN_INTERVAL_MS = spawnIntervalMs;
-  const TARGET_CHANCE = targetChance; // how often a spawn is the real target vs a decoy
+  const TARGET_CHANCE = targetChance; // how often a spawn is the target vs a decoy
 
   const wrapper = document.createElement("div");
   containerEl.appendChild(wrapper);
 
-  let target, spawnTimer, resolved;
+  let target, spawnTimer, countdownTimer, resolved, caughtCount, secondsLeft;
 
   function pickTarget() {
     target = ITEMS[Math.floor(Math.random() * ITEMS.length)];
@@ -32,12 +35,16 @@ function initCooking({ containerEl, onWin, onLose, level }) {
 
   function render() {
     wrapper.innerHTML = `
-      <div class="play-instructions">Catch the right one. Miss it or tap the wrong one and you lose.</div>
-      <div class="cooking-target-badge">Catch: <span class="cooking-target-emoji">${target}</span></div>
+      <div class="play-instructions">Catch ${targetCount} of the right one before time runs out.</div>
+      <div class="cooking-target-badge">
+        <span class="cooking-target-emoji">${target}</span>
+        <span class="cooking-target-count">${caughtCount} / ${targetCount}</span>
+        <span class="cooking-target-timer">${secondsLeft}s</span>
+      </div>
       <div class="overlay hidden cooking-gameover-overlay">
         <div class="modal-box">
-          <h2>Missed it</h2>
-          <p>That wasn't the right one. Try again!</p>
+          <h2>Out of time</h2>
+          <p>Didn't catch enough of them. Try again!</p>
           <button type="button" class="btn btn-primary cooking-retry-btn">Try again</button>
         </div>
       </div>
@@ -45,13 +52,33 @@ function initCooking({ containerEl, onWin, onLose, level }) {
     wrapper.querySelector(".cooking-retry-btn").addEventListener("click", startRound);
   }
 
+  function updateBadge() {
+    const countEl = wrapper.querySelector(".cooking-target-count");
+    const timerEl = wrapper.querySelector(".cooking-target-timer");
+    if (countEl) countEl.textContent = `${caughtCount} / ${targetCount}`;
+    if (timerEl) timerEl.textContent = `${secondsLeft}s`;
+  }
+
   function startRound() {
     resolved = false;
+    caughtCount = 0;
+    secondsLeft = timeLimitSec;
     pickTarget();
     render();
+
     clearInterval(spawnTimer);
     spawnTimer = setInterval(spawnItem, SPAWN_INTERVAL_MS);
     spawnItem();
+
+    clearInterval(countdownTimer);
+    countdownTimer = setInterval(tickClock, 1000);
+  }
+
+  function tickClock() {
+    if (resolved) return;
+    secondsLeft -= 1;
+    updateBadge();
+    if (secondsLeft <= 0) lose();
   }
 
   function spawnItem() {
@@ -75,25 +102,16 @@ function initCooking({ containerEl, onWin, onLose, level }) {
     el.style.top = `${containerEl.clientHeight + 20}px`;
 
     el.addEventListener("click", () => handleTap(emoji, el));
-    el.addEventListener("transitionend", () => {
-      if (resolved) {
-        el.remove();
-        return;
-      }
-      const wasTarget = emoji === target;
-      el.remove();
-      if (wasTarget) lose(); // the target fell through uncaught
-    });
+    el.addEventListener("transitionend", () => el.remove());
   }
 
   function handleTap(emoji, el) {
     if (resolved) return;
     el.remove();
-    if (emoji === target) {
-      win();
-    } else {
-      lose();
-    }
+    if (emoji !== target) return; // wrong one: no penalty, just doesn't count
+    caughtCount += 1;
+    updateBadge();
+    if (caughtCount >= targetCount) win();
   }
 
   function clearFallingItems() {
@@ -103,6 +121,7 @@ function initCooking({ containerEl, onWin, onLose, level }) {
   function win() {
     resolved = true;
     clearInterval(spawnTimer);
+    clearInterval(countdownTimer);
     clearFallingItems();
     setTimeout(onWin, 200);
   }
@@ -111,6 +130,7 @@ function initCooking({ containerEl, onWin, onLose, level }) {
     if (resolved) return;
     resolved = true;
     clearInterval(spawnTimer);
+    clearInterval(countdownTimer);
     clearFallingItems();
     // Real gift play gets a retry overlay — a demo caller passes onLose
     // instead, skipping straight to the pitch after this one try.
