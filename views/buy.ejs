@@ -27,12 +27,27 @@
           <label for="recipientName">Their name</label>
           <input type="text" id="recipientName" name="recipientName" placeholder="Whoever's playing" required />
 
-          <label for="level">Difficulty</label>
-          <select id="level" name="level">
-            <option value="easy">Easy — a quick, gentle win</option>
-            <option value="medium" selected>Medium — the usual challenge</option>
-            <option value="hard">Hard — make them work for it</option>
-          </select>
+          <fieldset class="level-choice">
+            <legend>Difficulty</legend>
+            <div class="level-choice__row">
+              <label class="level-choice__option">
+                <input type="radio" name="level" value="easy" />
+                <span class="level-choice__emoji">😌</span>
+                <span class="level-choice__label">Easy</span>
+              </label>
+              <label class="level-choice__option">
+                <input type="radio" name="level" value="medium" checked />
+                <span class="level-choice__emoji">🙂</span>
+                <span class="level-choice__label">Medium</span>
+              </label>
+              <label class="level-choice__option">
+                <input type="radio" name="level" value="hard" />
+                <span class="level-choice__emoji">🔥</span>
+                <span class="level-choice__label">Hard</span>
+              </label>
+            </div>
+            <p class="level-choice__caption" id="level-caption">The usual challenge.</p>
+          </fieldset>
 
           <label for="question">Your question</label>
           <textarea id="question" name="question" placeholder="What should we do this weekend?" required></textarea>
@@ -82,6 +97,16 @@
       }
       radios.forEach(function (r) { r.addEventListener('change', sync); });
       sync();
+    })();
+    (function () {
+      var levelRadios = document.querySelectorAll('input[name="level"]');
+      var caption = document.getElementById('level-caption');
+      var CAPTIONS = { easy: 'A quick, gentle win.', medium: 'The usual challenge.', hard: 'Make them work for it.' };
+      function syncLevel() {
+        caption.textContent = CAPTIONS[document.querySelector('input[name="level"]:checked').value];
+      }
+      levelRadios.forEach(function (r) { r.addEventListener('change', syncLevel); });
+      syncLevel();
     })();
   </script>
   <script src="/js/games/shared.js"></script>
