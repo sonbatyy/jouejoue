@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('layout-partials/head', { title: 'Set up your game' }) %>
+</head>
+<body>
+  <%- include('layout-partials/page-bg', { hideEmojiField: true }) %>
+
+  <div class="container">
+    <%- include('layout-partials/nav') %>
+
+    <section class="section-tight" style="max-width: 520px; margin: 0 auto;">
+      <p class="eyebrow">Personalize this code</p>
+      <h1 style="font-size: 26px;">Write the question they'll answer</h1>
+      <p style="font-size: 14px;">Whoever scans this code later will play <strong><%= template.name %></strong>, then answer this. The answer comes to you.</p>
+
+      <div class="form-card" style="margin-top: 18px;">
+        <form method="POST" action="/g/<%= shortcode %>/setup">
+          <label for="question">Your question</label>
+          <textarea id="question" name="question" placeholder="What do you want to ask them?" required></textarea>
+
+          <label for="note">A note (optional)</label>
+          <textarea id="note" name="note" placeholder="Anything you want them to read before they play."></textarea>
+
+          <label for="recipientName">Their name (optional)</label>
+          <input type="text" id="recipientName" name="recipientName" placeholder="Whoever's playing" />
+
+          <label for="buyerEmail">Your email (the answer comes here)</label>
+          <input type="email" id="buyerEmail" name="buyerEmail" placeholder="you@example.com" required />
+
+          <button type="submit" class="btn btn-primary">Lock it in</button>
+        </form>
+      </div>
+    </section>
+
+    <%- include('layout-partials/footer') %>
+  </div>
+  <script src="/js/games/shared.js"></script>
+</body>
+</html>

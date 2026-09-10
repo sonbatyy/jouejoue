@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('layout-partials/head', { title: 'Batch ' + batch.id + ' · ' + company.name }) %>
+</head>
+<body>
+  <%- include('layout-partials/page-bg', { hideEmojiField: true }) %>
+
+  <div class="container">
+    <%- include('layout-partials/nav') %>
+
+    <section class="section-tight" style="max-width: 760px; margin: 0 auto;">
+      <p class="eyebrow"><a href="/company/<%= company.manage_token %>" class="nav-underline">&larr; <%= company.name %></a></p>
+      <h1 style="font-size: 26px;"><%= templateName %>: <%= batch.quantity %> codes</h1>
+      <p style="font-size: 14px; color: var(--color-ink-soft); text-transform: capitalize;"><%= batch.mode %> · <%= batch.level %> · answers to <%= batch.answers_to %></p>
+
+      <div class="order-summary" style="margin-top: 16px; display: flex; gap: 24px; flex-wrap: wrap;">
+        <div><div style="font-size: 22px; font-weight: 800;"><%= stats.total %></div><div style="font-size: 12px; color: var(--color-ink-soft);">codes</div></div>
+        <div><div style="font-size: 22px; font-weight: 800;"><%= stats.scanned %></div><div style="font-size: 12px; color: var(--color-ink-soft);">scanned</div></div>
+        <div><div style="font-size: 22px; font-weight: 800;"><%= stats.played %></div><div style="font-size: 12px; color: var(--color-ink-soft);">played</div></div>
+        <div><div style="font-size: 22px; font-weight: 800;"><%= stats.answered %></div><div style="font-size: 12px; color: var(--color-ink-soft);">answered</div></div>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap;">
+        <a href="/company/<%= company.manage_token %>/batch/<%= batch.id %>/sheet" class="btn btn-primary">Printable QR sheet</a>
+        <a href="/company/<%= company.manage_token %>/batch/<%= batch.id %>/codes.csv" class="btn btn-secondary">Download codes (CSV)</a>
+      </div>
+
+      <table style="width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px;">
+        <thead><tr>
+          <th style="text-align: left; padding: 8px 0; border-bottom: 2px solid var(--color-border);">Code</th>
+          <th style="text-align: left; padding: 8px 0; border-bottom: 2px solid var(--color-border);">Link</th>
+          <th style="text-align: left; padding: 8px 0; border-bottom: 2px solid var(--color-border);">Status</th>
+        </tr></thead>
+        <tbody>
+          <% codes.forEach(function(c) { %>
+            <tr>
+              <td style="padding: 7px 0; border-bottom: 1px solid var(--color-border); font-family: monospace;"><%= c.shortcode %></td>
+              <td style="padding: 7px 0; border-bottom: 1px solid var(--color-border); word-break: break-all;"><%= baseUrl %>/g/<%= c.shortcode %></td>
+              <td style="padding: 7px 0; border-bottom: 1px solid var(--color-border);"><%= c.instance_token ? 'live' : 'unused' %></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </section>
+
+    <%- include('layout-partials/footer') %>
+  </div>
+  <script src="/js/games/shared.js"></script>
+</body>
+</html>

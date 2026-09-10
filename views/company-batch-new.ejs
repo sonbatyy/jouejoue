@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('layout-partials/head', { title: 'New batch · ' + company.name }) %>
+</head>
+<body>
+  <%- include('layout-partials/page-bg', { hideEmojiField: true }) %>
+
+  <div class="container">
+    <%- include('layout-partials/nav') %>
+
+    <section class="section-tight" style="max-width: 560px; margin: 0 auto;">
+      <p class="eyebrow">New batch</p>
+      <h1 style="font-size: 26px;">Order a run of QR codes</h1>
+      <p style="font-size: 14px;"><%= perCode %> per code. You'll see the total before paying.</p>
+
+      <div class="form-card" style="margin-top: 18px;">
+        <form method="POST" action="/company/<%= company.manage_token %>/batch/checkout">
+          <label for="templateId">Game</label>
+          <select id="templateId" name="templateId" required>
+            <% templates.forEach(function(t) { %>
+              <option value="<%= t.id %>"><%= t.name %></option>
+            <% }); %>
+          </select>
+
+          <label for="level">Difficulty</label>
+          <select id="level" name="level">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+
+          <fieldset class="delivery-choice">
+            <legend>Content per code</legend>
+            <label class="delivery-choice__option">
+              <input type="radio" name="mode" value="fixed" checked />
+              <span><strong>Fixed.</strong> Every code plays the same game and question you set here. Answers go to you.</span>
+            </label>
+            <label class="delivery-choice__option">
+              <input type="radio" name="mode" value="personalized" />
+              <span><strong>Personalized.</strong> Each buyer sets their own question and email first. Answers go to them.</span>
+            </label>
+          </fieldset>
+
+          <div id="fixed-question-field">
+            <label for="defaultQuestion">The question (fixed mode)</label>
+            <input type="text" id="defaultQuestion" name="defaultQuestion" placeholder="e.g. How did the flowers make you feel?" />
+          </div>
+
+          <label for="quantity">How many codes</label>
+          <input type="text" id="quantity" name="quantity" inputmode="numeric" placeholder="<%= minQuantity %> minimum" value="<%= minQuantity %>" required />
+
+          <label for="logoUrl">Your logo URL (optional)</label>
+          <input type="text" id="logoUrl" name="logoUrl" placeholder="https://yourshop.com/logo.png" />
+
+          <label for="accentColor">Your accent colour (optional)</label>
+          <input type="text" id="accentColor" name="accentColor" placeholder="#cf5d3b" />
+
+          <button type="submit" class="btn btn-primary">Review &amp; pay</button>
+        </form>
+      </div>
+    </section>
+
+    <%- include('layout-partials/footer') %>
+  </div>
+  <script>
+    (function () {
+      var radios = document.querySelectorAll('input[name="mode"]');
+      var field = document.getElementById('fixed-question-field');
+      var input = document.getElementById('defaultQuestion');
+      function sync() {
+        var fixed = document.querySelector('input[name="mode"]:checked').value === 'fixed';
+        field.hidden = !fixed;
+        input.required = fixed;
+      }
+      radios.forEach(function (r) { r.addEventListener('change', sync); });
+      sync();
+    })();
+  </script>
+  <script src="/js/games/shared.js"></script>
+</body>
+</html>

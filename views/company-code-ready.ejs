@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('layout-partials/head', { title: 'Code ready' }) %>
+</head>
+<body>
+  <div class="status-page">
+    <div class="status-page__card">
+      <p class="eyebrow">Linked 💛</p>
+      <h1 style="font-size: 26px;">This code is ready.</h1>
+      <p>Attach it to the gift. Whoever scans it plays the game and answers your question, and it comes straight to your inbox.</p>
+      <div class="share-box" style="margin-top: 8px;">
+        <input type="text" id="share-url" value="<%= shareUrl %>" readonly />
+        <button class="btn btn-primary" id="copy-btn" type="button">Copy link</button>
+      </div>
+      <p style="font-size: 12px; color: var(--color-ink-soft); margin-top: 12px;">The QR code already points here, so you don't need to send this link unless you want to.</p>
+    </div>
+  </div>
+  <script>
+    document.getElementById('copy-btn').addEventListener('click', async () => {
+      var input = document.getElementById('share-url');
+      input.select();
+      try {
+        await navigator.clipboard.writeText(input.value);
+        var btn = document.getElementById('copy-btn');
+        var original = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(function () { btn.textContent = original; }, 1500);
+      } catch (err) { /* selected for manual copy */ }
+    });
+  </script>
+</body>
+</html>

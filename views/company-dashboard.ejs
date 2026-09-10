@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('layout-partials/head', { title: company.name + ' · dashboard' }) %>
+</head>
+<body>
+  <%- include('layout-partials/page-bg', { hideEmojiField: true }) %>
+
+  <div class="container">
+    <%- include('layout-partials/nav') %>
+
+    <section class="section-tight" style="max-width: 760px; margin: 0 auto;">
+      <div style="display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <p class="eyebrow" style="margin: 0;">Company dashboard</p>
+          <h1 style="font-size: 28px; margin: 4px 0 0;"><%= company.name %></h1>
+        </div>
+        <a href="/company/<%= company.manage_token %>/batch/new" class="btn btn-primary">New batch</a>
+      </div>
+
+      <% if (!batches.length) { %>
+        <div class="form-card" style="margin-top: 20px; text-align: center;">
+          <p>No batches yet. Order your first run of QR codes to get going.</p>
+        </div>
+      <% } else { %>
+        <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 12px;">
+          <% batches.forEach(function(b) { %>
+            <a href="/company/<%= company.manage_token %>/batch/<%= b.id %>" class="form-card lift" style="display: block; text-decoration: none; color: inherit;">
+              <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px;">
+                <strong style="font-size: 16px;"><%= b.templateName %>: <%= b.quantity %> codes</strong>
+                <span style="font-size: 13px; color: var(--color-ink-soft); text-transform: capitalize;"><%= b.mode %> · <%= b.level %></span>
+              </div>
+              <div style="margin-top: 10px; display: flex; gap: 18px; font-size: 13px; color: var(--color-ink-soft);">
+                <span><strong style="color: var(--color-ink);"><%= b.stats.scanned %></strong> scanned</span>
+                <span><strong style="color: var(--color-ink);"><%= b.stats.played %></strong> played</span>
+                <span><strong style="color: var(--color-ink);"><%= b.stats.answered %></strong> answered</span>
+              </div>
+            </a>
+          <% }); %>
+        </div>
+      <% } %>
+
+      <p style="color: var(--color-ink-soft); font-size: 12px; margin-top: 18px;">Bookmark this page. The link is the only way in.</p>
+    </section>
+
+    <%- include('layout-partials/footer') %>
+  </div>
+  <script src="/js/games/shared.js"></script>
+</body>
+</html>

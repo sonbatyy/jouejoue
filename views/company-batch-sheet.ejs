@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('layout-partials/head', { title: 'QR sheet · batch ' + batch.id }) %>
+  <style>
+    .qr-sheet { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 20px; }
+    .qr-cell { text-align: center; border: 1px dashed #ccc; border-radius: 10px; padding: 14px; }
+    .qr-cell img { width: 100%; max-width: 200px; height: auto; }
+    .qr-cell code { display: block; margin-top: 6px; font-size: 12px; letter-spacing: 0.1em; }
+    @media print {
+      .site-nav, .site-footer, .page-bg, .no-print { display: none !important; }
+      body { background: #fff !important; }
+      .qr-sheet { grid-template-columns: repeat(3, 1fr); }
+      .qr-cell { border-color: #999; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <%- include('layout-partials/page-bg', { hideEmojiField: true }) %>
+
+  <div class="container">
+    <%- include('layout-partials/nav') %>
+
+    <section class="section-tight">
+      <div class="no-print" style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <p class="eyebrow" style="margin: 0;"><%= company.name %> · batch <%= batch.id %></p>
+          <h1 style="font-size: 24px; margin: 4px 0 0;"><%= codes.length %> codes. Print, cut, attach.</h1>
+        </div>
+        <button type="button" class="btn btn-secondary" onclick="window.print()">Print / save as PDF</button>
+      </div>
+
+      <div class="qr-sheet">
+        <% codes.forEach(function(c) { %>
+          <div class="qr-cell">
+            <img src="<%= c.qr %>" alt="QR for <%= c.shortcode %>" />
+            <code><%= c.shortcode %></code>
+          </div>
+        <% }); %>
+      </div>
+    </section>
+  </div>
+  <script src="/js/games/shared.js"></script>
+</body>
+</html>
