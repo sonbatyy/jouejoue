@@ -55,7 +55,7 @@ function emailShell({ kicker = "JoueJoue", bodyHtml, preheader }) {
   `;
 }
 
-// The order-summary block reused by both receipt emails — a plain table
+// The order-summary block reused by every receipt email — a plain table
 // (not flex/grid) so it survives Outlook's stripped-down CSS support.
 function receiptSummaryRow(label, value) {
   return `
@@ -64,6 +64,22 @@ function receiptSummaryRow(label, value) {
       <td style="padding: 10px 0; border-bottom: 1px solid #ecdfc9; font-size: 15px; font-weight: 700; text-align: right;">${escapeHtml(value)}</td>
     </tr>
   `;
+}
+
+// Order # + date header, the same two lines any real invoice opens with —
+// on top of receiptSummaryRow's item/price rows, so the email reads as an
+// actual itemized receipt rather than just a confirmation note. dateDisplay
+// is formatted at the call site (new Date(...).toLocaleDateString()),
+// matching how every other date in this app's emails is already formatted.
+function receiptHeaderRows(receiptNumber, dateDisplay) {
+  return receiptSummaryRow("Order #", receiptNumber) + receiptSummaryRow("Date", dateDisplay);
+}
+
+// Every receipt email links back to its own hosted page (server/routes/
+// receipts.js) — a record the buyer can reopen or print later instead of
+// only ever existing as one email that can get lost or deleted.
+function viewReceiptLink(receiptNumber) {
+  return `<p style="margin: 20px 0 0; text-align: center;"><a href="${SITE_URL}/receipt/${encodeURIComponent(receiptNumber)}" style="color: #cf5d3b; font-size: 13px; font-weight: 700; text-decoration: none;">View full receipt →</a></p>`;
 }
 
 // A plain-text alternative alongside the HTML body, derived automatically
@@ -202,9 +218,9 @@ function sendContactNotification({ name, email, message }) {
 
 // Sent right after a bank-game purchase completes (server/routes/purchase.js,
 // POST /api/instances) — the mock-checkout equivalent of an order receipt.
-function sendPurchaseReceipt({ buyerEmail, templateName, recipientName, priceDisplay, shareUrl }) {
+function sendPurchaseReceipt({ buyerEmail, templateName, recipientName, priceDisplay, shareUrl, receiptNumber, date }) {
   const mode = process.env.EMAIL_MODE || "console";
-  const subject = `Receipt: ${templateName} for ${recipientName}`;
+  const subject = `Receipt ${receiptNumber}: ${templateName} for ${recipientName}`;
 
   if (mode === "resend") {
     sendViaResend({
@@ -215,26 +231,28 @@ function sendPurchaseReceipt({ buyerEmail, templateName, recipientName, priceDis
         bodyHtml: `
           <h1 style="font-size: 22px; margin: 0 0 16px;">Thanks — it's on its way to ${escapeHtml(recipientName)}.</h1>
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            ${receiptHeaderRows(receiptNumber, date)}
             ${receiptSummaryRow(templateName, priceDisplay)}
             ${receiptSummaryRow("For", recipientName)}
             ${receiptSummaryRow("Live for", "1 month")}
           </table>
           <p style="margin: 0 0 6px; color: #6f6258; font-size: 14px;">Their link:</p>
           <p style="margin: 0 0 20px; font-size: 15px; word-break: break-all;"><a href="${escapeHtml(shareUrl)}" style="color: #cf5d3b;">${escapeHtml(shareUrl)}</a></p>
-          <p style="color: #a89a8d; font-size: 12px; margin: 0;">This is a prototype — no card processor is connected and no money actually moved.</p>
+          <p style="color: #a89a8d; font-size: 12px; margin: 0;">Paid via mock checkout — this is a prototype, no card processor is connected and no money actually moved.</p>
+          ${viewReceiptLink(receiptNumber)}
         `,
       }),
     });
     return;
   }
 
-  logStub("purchase receipt", [["To", buyerEmail], ["Game", templateName], ["For", recipientName], ["Price", priceDisplay], ["Link", shareUrl]]);
+  logStub("purchase receipt", [["To", buyerEmail], ["Order #", receiptNumber], ["Game", templateName], ["For", recipientName], ["Price", priceDisplay], ["Link", shareUrl]]);
 }
 
 // Sent right after a renewal completes (server/routes/play.js, POST /renew/:token).
-function sendRenewalReceipt({ buyerEmail, templateName, recipientName, priceDisplay, newExpiryDate, shareUrl }) {
+function sendRenewalReceipt({ buyerEmail, templateName, recipientName, priceDisplay, newExpiryDate, shareUrl, receiptNumber, date }) {
   const mode = process.env.EMAIL_MODE || "console";
-  const subject = `Receipt: ${templateName} renewed for another month`;
+  const subject = `Receipt ${receiptNumber}: ${templateName} renewed for another month`;
 
   if (mode === "resend") {
     sendViaResend({
@@ -245,27 +263,29 @@ function sendRenewalReceipt({ buyerEmail, templateName, recipientName, priceDisp
         bodyHtml: `
           <h1 style="font-size: 22px; margin: 0 0 16px;">Renewed — ${escapeHtml(recipientName)}'s link stays live.</h1>
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            ${receiptHeaderRows(receiptNumber, date)}
             ${receiptSummaryRow(`${templateName} — renewal`, priceDisplay)}
             ${receiptSummaryRow("New expiry", newExpiryDate)}
           </table>
           <p style="margin: 0 0 6px; color: #6f6258; font-size: 14px;">The link, unchanged:</p>
           <p style="margin: 0 0 20px; font-size: 15px; word-break: break-all;"><a href="${escapeHtml(shareUrl)}" style="color: #cf5d3b;">${escapeHtml(shareUrl)}</a></p>
-          <p style="color: #a89a8d; font-size: 12px; margin: 0;">This is a prototype — no card processor is connected and no money actually moved.</p>
+          <p style="color: #a89a8d; font-size: 12px; margin: 0;">Paid via mock checkout — this is a prototype, no card processor is connected and no money actually moved.</p>
+          ${viewReceiptLink(receiptNumber)}
         `,
       }),
     });
     return;
   }
 
-  logStub("renewal receipt", [["To", buyerEmail], ["Game", templateName], ["For", recipientName], ["Price", priceDisplay], ["New expiry", newExpiryDate], ["Link", shareUrl]]);
+  logStub("renewal receipt", [["To", buyerEmail], ["Order #", receiptNumber], ["Game", templateName], ["For", recipientName], ["Price", priceDisplay], ["New expiry", newExpiryDate], ["Link", shareUrl]]);
 }
 
 // Sent right after a custom-game request is submitted (server/routes/customRequest.js,
 // POST /api/custom-requests) — this tier is paid up front via /custom-payment/:templateId
 // but has no share link yet, so the receipt confirms the idea/purpose we received instead.
-function sendCustomRequestReceipt({ buyerEmail, templateName, priceDisplay, gameIdea, purpose }) {
+function sendCustomRequestReceipt({ buyerEmail, templateName, priceDisplay, gameIdea, purpose, receiptNumber, date }) {
   const mode = process.env.EMAIL_MODE || "console";
-  const subject = `Receipt: ${templateName} request received`;
+  const subject = `Receipt ${receiptNumber}: ${templateName} request received`;
 
   if (mode === "resend") {
     sendViaResend({
@@ -276,6 +296,7 @@ function sendCustomRequestReceipt({ buyerEmail, templateName, priceDisplay, game
         bodyHtml: `
           <h1 style="font-size: 22px; margin: 0 0 16px;">Got it — we're building your custom game.</h1>
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            ${receiptHeaderRows(receiptNumber, date)}
             ${receiptSummaryRow(templateName, priceDisplay)}
           </table>
           <p style="margin: 0 0 6px; color: #6f6258; font-size: 14px;">What you told us:</p>
@@ -283,14 +304,15 @@ function sendCustomRequestReceipt({ buyerEmail, templateName, priceDisplay, game
             <p style="margin: 0 0 10px; font-size: 15px; white-space: pre-wrap;"><strong>Idea:</strong> ${escapeHtml(gameIdea)}</p>
             <p style="margin: 0; font-size: 15px; white-space: pre-wrap;"><strong>For:</strong> ${escapeHtml(purpose)}</p>
           </div>
-          <p style="color: #a89a8d; font-size: 12px; margin: 0;">We'll reply by email with your link once it's ready. This is a prototype — no card processor is connected and no money actually moved.</p>
+          <p style="color: #a89a8d; font-size: 12px; margin: 0;">We'll reply by email with your link once it's ready. Paid via mock checkout — this is a prototype, no card processor is connected and no money actually moved.</p>
+          ${viewReceiptLink(receiptNumber)}
         `,
       }),
     });
     return;
   }
 
-  logStub("custom request receipt", [["To", buyerEmail], ["Game", templateName], ["Price", priceDisplay], ["Idea", gameIdea], ["Purpose", purpose]]);
+  logStub("custom request receipt", [["To", buyerEmail], ["Order #", receiptNumber], ["Game", templateName], ["Price", priceDisplay], ["Idea", gameIdea], ["Purpose", purpose]]);
 }
 
 // Sent when the buyer chooses "email it to them directly" on the buy form

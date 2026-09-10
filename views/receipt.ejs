@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('layout-partials/head', { title: 'Receipt ' + receipt.receipt_number }) %>
+  <style>
+    @media print {
+      .site-nav, .site-footer, .page-bg, .emoji-field, .no-print { display: none !important; }
+      body { background: #fff !important; }
+      .receipt-card { box-shadow: none !important; border: 1px solid #ddd !important; }
+    }
+  </style>
+</head>
+<body>
+  <%- include('layout-partials/page-bg', { hideEmojiField: true }) %>
+
+  <div class="container">
+    <%- include('layout-partials/nav') %>
+
+    <section class="section-tight" style="max-width: 480px; margin: 0 auto;">
+      <div class="form-card receipt-card">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+          <p class="eyebrow" style="margin: 0;">Receipt</p>
+          <span class="no-print" style="font-size: 12px; color: var(--color-ink-soft);">
+            <%= { purchase: 'Game purchase', renewal: 'Link renewal', custom_request: 'Custom game request', subscription: 'Subscription' }[receipt.kind] || receipt.kind %>
+          </span>
+        </div>
+        <h1 style="font-size: 24px; margin: 0 0 18px;"><%= receipt.item_name %></h1>
+
+        <div class="order-summary" style="background: transparent; padding: 0; border: none;">
+          <div class="order-summary__row" style="padding: 8px 0; border-bottom: 1px solid var(--color-border);">
+            <span style="color: var(--color-ink-soft);">Order #</span>
+            <strong><%= receipt.receipt_number %></strong>
+          </div>
+          <div class="order-summary__row" style="padding: 8px 0; border-bottom: 1px solid var(--color-border);">
+            <span style="color: var(--color-ink-soft);">Date</span>
+            <strong><%= dateDisplay %></strong>
+          </div>
+          <% if (receipt.item_detail) { %>
+            <div class="order-summary__row" style="padding: 8px 0; border-bottom: 1px solid var(--color-border);">
+              <span style="color: var(--color-ink-soft);">Detail</span>
+              <strong style="text-align: right; max-width: 60%;"><%= receipt.item_detail %></strong>
+            </div>
+          <% } %>
+          <div class="order-summary__row" style="padding: 8px 0; border-bottom: 1px solid var(--color-border);">
+            <span style="color: var(--color-ink-soft);">Billed to</span>
+            <strong><%= receipt.buyer_email %></strong>
+          </div>
+          <div class="order-summary__row" style="padding: 12px 0 0; font-size: 18px;">
+            <span>Total</span>
+            <strong><%= receipt.amount_display %></strong>
+          </div>
+        </div>
+
+        <p style="color: var(--color-ink-soft); font-size: 12px; margin-top: 18px;">Paid via mock checkout — this is a prototype, no card processor is connected and no money actually moved.</p>
+
+        <button type="button" class="btn btn-secondary no-print" style="width: 100%; margin-top: 6px;" onclick="window.print()">Print / save as PDF</button>
+      </div>
+    </section>
+
+    <%- include('layout-partials/footer') %>
+  </div>
+  <script src="/js/games/shared.js"></script>
+  <script src="/js/emoji-field.js"></script>
+</body>
+</html>

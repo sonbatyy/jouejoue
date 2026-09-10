@@ -45,3 +45,24 @@ CREATE TABLE IF NOT EXISTS contact_messages (
   message      TEXT NOT NULL,
   created_at   INTEGER NOT NULL
 );
+
+-- One row per completed mock payment across every paid flow (purchase,
+-- renewal, custom request, and later subscriptions) — a persistent,
+-- itemized record, not just an email that could get lost. Never touches
+-- card fields (this app's checkout never reads them at all); "paid via"
+-- stays a plain description of the flow, not a fabricated card number.
+CREATE TABLE IF NOT EXISTS receipts (
+  id              INTEGER PRIMARY KEY AUTOINCREMENT,
+  receipt_number  TEXT UNIQUE NOT NULL,   -- e.g. JJ-20260910-0001, shown to the buyer
+  kind            TEXT NOT NULL,          -- 'purchase' | 'renewal' | 'custom_request' | 'subscription'
+  buyer_email     TEXT NOT NULL,
+  buyer_name      TEXT NOT NULL DEFAULT '',
+  item_name       TEXT NOT NULL,
+  item_detail     TEXT NOT NULL DEFAULT '',  -- e.g. "For Yara" / "Renewal — new expiry Oct 10"
+  amount_display  TEXT NOT NULL,          -- localized price string as shown to the buyer, e.g. "100 EGP"
+  currency        TEXT NOT NULL,
+  related_token   TEXT,                   -- game_instances.token, when applicable
+  created_at      INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_receipts_number ON receipts(receipt_number);
+CREATE INDEX IF NOT EXISTS idx_receipts_buyer_email ON receipts(buyer_email);

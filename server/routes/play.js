@@ -3,6 +3,7 @@ const db = require("../db");
 const { isExpired, computeExpiry, RENEWAL_PRICE } = require("../lib/expiry");
 const { sendAnswerNotification, sendRenewalReceipt } = require("../lib/email");
 const { resolveCurrency, localizedPrice } = require("../lib/pricing");
+const { recordReceipt } = require("../lib/receipts");
 
 const router = express.Router();
 
@@ -115,13 +116,27 @@ router.post("/renew/:token", async (req, res) => {
   const newExpiry = renewInstance(instance);
 
   const currency = await resolveCurrency(req);
+  const priceDisplay = localizedPrice(RENEWAL_PRICE, currency);
+  const newExpiryDate = new Date(newExpiry).toLocaleDateString();
+  const { receiptNumber, createdAt } = recordReceipt({
+    kind: "renewal",
+    buyerEmail: instance.buyer_email,
+    buyerName: instance.sender_name || "",
+    itemName: `${template.name} — renewal`,
+    itemDetail: `New expiry ${newExpiryDate}`,
+    amountDisplay: priceDisplay,
+    currency,
+    relatedToken: instance.token,
+  });
   sendRenewalReceipt({
     buyerEmail: instance.buyer_email,
     templateName: template.name,
     recipientName: instance.recipient_name,
-    priceDisplay: localizedPrice(RENEWAL_PRICE, currency),
-    newExpiryDate: new Date(newExpiry).toLocaleDateString(),
+    priceDisplay,
+    newExpiryDate,
     shareUrl: `${req.protocol}://${req.get("host")}/play/${instance.token}`,
+    receiptNumber,
+    date: new Date(createdAt).toLocaleDateString(),
   });
 
   res.redirect(`/play/${instance.token}`);

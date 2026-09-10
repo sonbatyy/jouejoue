@@ -4,6 +4,7 @@ const { generatePersonalizedToken } = require("../lib/tokens");
 const { computeExpiry } = require("../lib/expiry");
 const { resolveCurrency, withLocalizedPrice, allLocalizedPrices, localizedPrice, SWITCHABLE_CURRENCIES } = require("../lib/pricing");
 const { sendPurchaseReceipt, sendGameInvite } = require("../lib/email");
+const { recordReceipt } = require("../lib/receipts");
 
 const router = express.Router();
 
@@ -94,12 +95,25 @@ router.post("/api/instances", async (req, res) => {
 
   const shareUrl = `${req.protocol}://${req.get("host")}/play/${token}`;
   const currency = await resolveCurrency(req);
+  const priceDisplay = localizedPrice(template, currency);
+  const { receiptNumber, createdAt } = recordReceipt({
+    kind: "purchase",
+    buyerEmail,
+    buyerName: senderName,
+    itemName: template.name,
+    itemDetail: `For ${recipientName}`,
+    amountDisplay: priceDisplay,
+    currency,
+    relatedToken: token,
+  });
   sendPurchaseReceipt({
     buyerEmail,
     templateName: template.name,
     recipientName,
-    priceDisplay: localizedPrice(template, currency),
+    priceDisplay,
     shareUrl,
+    receiptNumber,
+    date: new Date(createdAt).toLocaleDateString(),
   });
 
   if (deliveryMethod === "email") {

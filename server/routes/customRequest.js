@@ -2,6 +2,7 @@ const express = require("express");
 const db = require("../db");
 const { resolveCurrency, withLocalizedPrice, localizedPrice } = require("../lib/pricing");
 const { sendCustomRequestReceipt } = require("../lib/email");
+const { recordReceipt } = require("../lib/receipts");
 
 const router = express.Router();
 
@@ -53,12 +54,23 @@ router.post("/api/custom-requests", async (req, res) => {
   ).run(template.id, buyerEmail, gameIdea, purpose, Date.now());
 
   const currency = await resolveCurrency(req);
+  const priceDisplay = localizedPrice(template, currency);
+  const { receiptNumber, createdAt } = recordReceipt({
+    kind: "custom_request",
+    buyerEmail,
+    itemName: template.name,
+    itemDetail: purpose,
+    amountDisplay: priceDisplay,
+    currency,
+  });
   sendCustomRequestReceipt({
     buyerEmail,
     templateName: template.name,
-    priceDisplay: localizedPrice(template, currency),
+    priceDisplay,
     gameIdea,
     purpose,
+    receiptNumber,
+    date: new Date(createdAt).toLocaleDateString(),
   });
 
   res.render("custom-request-thanks", { buyerEmail });

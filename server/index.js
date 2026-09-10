@@ -31,6 +31,7 @@ app.use(require("./routes/catalog"));
 app.use(require("./routes/purchase"));
 app.use(require("./routes/play"));
 app.use(require("./routes/customRequest"));
+app.use(require("./routes/receipts"));
 app.use(require("./routes/contact"));
 app.use(require("./routes/demo"));
 if (process.env.NODE_ENV !== "production") {
