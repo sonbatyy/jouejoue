@@ -91,3 +91,75 @@ CREATE TABLE IF NOT EXISTS subscriptions (
   deliveries_count  INTEGER NOT NULL DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS idx_subscriptions_manage_token ON subscriptions(manage_token);
+
+-- "For Companies": a business (e.g. a florist) attaches a JoueJoue game to
+-- its products via printed QR codes. Onboarding is request-access — a
+-- company submits an enquiry here, then an operator provisions a companies
+-- row and sends them a dashboard link.
+CREATE TABLE IF NOT EXISTS company_requests (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  company_name  TEXT NOT NULL,
+  contact_name  TEXT NOT NULL,
+  contact_email TEXT NOT NULL,
+  sells         TEXT NOT NULL DEFAULT '',   -- what they sell / attach games to
+  volume        TEXT NOT NULL DEFAULT '',   -- rough monthly volume, free text
+  message       TEXT NOT NULL DEFAULT '',
+  status        TEXT NOT NULL DEFAULT 'new',  -- 'new' | 'provisioned' | 'declined'
+  created_at    INTEGER NOT NULL
+);
+
+-- A provisioned company. manage_token is the only "login" (magic link),
+-- same pattern as subscriptions.
+CREATE TABLE IF NOT EXISTS companies (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  manage_token  TEXT UNIQUE NOT NULL,
+  name          TEXT NOT NULL,
+  contact_email TEXT NOT NULL,
+  accent_color  TEXT NOT NULL DEFAULT '',   -- optional brand colour for the play page
+  logo_url      TEXT NOT NULL DEFAULT '',   -- optional brand logo for the play page
+  created_at    INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_companies_manage_token ON companies(manage_token);
+
+-- One purchased run of codes: a game template + difficulty + either a fixed
+-- question or a personalize-first flow, in a chosen quantity. Mock checkout.
+CREATE TABLE IF NOT EXISTS company_batches (
+  id               INTEGER PRIMARY KEY AUTOINCREMENT,
+  company_id       INTEGER NOT NULL REFERENCES companies(id),
+  template_id      INTEGER NOT NULL REFERENCES game_templates(id),
+  level            TEXT NOT NULL DEFAULT 'medium',
+  mode             TEXT NOT NULL DEFAULT 'fixed',      -- 'fixed' | 'personalized'
+  default_question TEXT NOT NULL DEFAULT '',           -- used for 'fixed' mode
+  answers_to       TEXT NOT NULL DEFAULT 'buyer',      -- 'buyer' | 'company'
+  quantity         INTEGER NOT NULL,
+  price_display    TEXT NOT NULL,
+  currency         TEXT NOT NULL,
+  logo_url         TEXT NOT NULL DEFAULT '',
+  accent_color     TEXT NOT NULL DEFAULT '',
+  created_at       INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_company_batches_company ON company_batches(company_id);
+
+-- One printable QR code. shortcode is what /g/:shortcode resolves. A game
+-- instance is created lazily on first scan (fixed) or after the buyer
+-- personalizes it, and its token is stored back here.
+CREATE TABLE IF NOT EXISTS company_codes (
+  id             INTEGER PRIMARY KEY AUTOINCREMENT,
+  batch_id       INTEGER NOT NULL REFERENCES company_batches(id),
+  shortcode      TEXT UNIQUE NOT NULL,
+  instance_token TEXT,                       -- game_instances.token once one exists
+  personalized   INTEGER NOT NULL DEFAULT 0,
+  created_at     INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_company_codes_shortcode ON company_codes(shortcode);
+CREATE INDEX IF NOT EXISTS idx_company_codes_batch ON company_codes(batch_id);
+
+-- One row per scan of a /g/:shortcode link — the dynamic-QR analytics.
+CREATE TABLE IF NOT EXISTS code_scans (
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  code_id      INTEGER NOT NULL REFERENCES company_codes(id),
+  scanned_at   INTEGER NOT NULL,
+  country_code TEXT,
+  user_agent   TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_code_scans_code ON code_scans(code_id);

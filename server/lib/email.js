@@ -222,6 +222,38 @@ function sendContactNotification({ name, email, message }) {
   logStub("contact message", [["To", to], ["Name", name], ["Email", email], ["Message", message]]);
 }
 
+// The "For Companies" enquiry form (views/for-companies.ejs). Onboarding is
+// request-access, so this notification is how an operator learns a company
+// wants in and can go provision them.
+function sendCompanyRequestNotification({ companyName, contactName, contactEmail, sells, volume, message }) {
+  const mode = process.env.EMAIL_MODE || "console";
+  const to = process.env.CONTACT_EMAIL_TO || "contact@joue-joue.com";
+  const subject = `Company enquiry: ${companyName}`;
+
+  if (mode === "resend") {
+    sendViaResend({
+      to,
+      subject,
+      replyTo: contactEmail,
+      html: emailShell({
+        kicker: "JoueJoue · Company enquiry",
+        bodyHtml: `
+          <h1 style="font-size: 22px; margin: 0 0 16px;">${escapeHtml(companyName)}</h1>
+          <p style="margin: 0 0 16px; color: #6f6258; font-size: 14px;">${escapeHtml(contactName)} &bull; ${escapeHtml(contactEmail)} &bull; reply directly to reach them.</p>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">
+            ${receiptSummaryRow("Sells / attaches to", sells || "—")}
+            ${receiptSummaryRow("Rough volume", volume || "—")}
+          </table>
+          ${message ? `<div style="background: #fbf1e6; border-radius: 12px; padding: 16px 18px;"><p style="margin: 0; font-size: 15px; white-space: pre-wrap;">${escapeHtml(message)}</p></div>` : ""}
+        `,
+      }),
+    });
+    return;
+  }
+
+  logStub("company enquiry", [["To", to], ["Company", companyName], ["Contact", contactName], ["Email", contactEmail], ["Sells", sells], ["Volume", volume], ["Message", message]]);
+}
+
 // Sent right after a bank-game purchase completes (server/routes/purchase.js,
 // POST /api/instances) — the mock-checkout equivalent of an order receipt.
 function sendPurchaseReceipt({ buyerEmail, templateName, recipientName, priceDisplay, shareUrl, receiptNumber, date }) {
@@ -393,4 +425,4 @@ function sendSubscriptionReceipt({ subscriberEmail, tierName, monthLabel, priceD
   logStub("subscription receipt", [["To", subscriberEmail], ["Order #", receiptNumber], ["Tier", tierName], ["Month", monthLabel], ["Price", priceDisplay], ["Detail", detail], ["Link", shareUrl || "n/a"], ["Manage", manageUrl], ["Cancel", cancelUrl]]);
 }
 
-module.exports = { sendAnswerNotification, sendContactNotification, sendPurchaseReceipt, sendRenewalReceipt, sendCustomRequestReceipt, sendGameInvite, sendSubscriptionReceipt };
+module.exports = { sendAnswerNotification, sendContactNotification, sendPurchaseReceipt, sendRenewalReceipt, sendCustomRequestReceipt, sendGameInvite, sendSubscriptionReceipt, sendCompanyRequestNotification };

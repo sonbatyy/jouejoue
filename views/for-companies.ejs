@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('layout-partials/head', { title: 'For companies' }) %>
+</head>
+<body>
+  <%- include('layout-partials/page-bg') %>
+
+  <div class="container">
+    <%- include('layout-partials/nav') %>
+
+    <section class="section" style="text-align: center;">
+      <p class="eyebrow">For companies</p>
+      <h1>Put a game on the box, not just a card.</h1>
+      <p style="max-width: 540px; margin: 12px auto 0;">Print a QR code, tuck it in with the flowers, the parcel, the bouquet. Whoever receives it scans, plays a quick game, and answers a question, and the answer goes straight back to the person who sent it.</p>
+    </section>
+
+    <section class="section-tight">
+      <div class="tiers tiers--three" data-reveal>
+        <div class="tier lift">
+          <h3>Order a batch</h3>
+          <p>Pick a game, a difficulty, and a question. We generate a run of unique QR codes for you to print and attach.</p>
+        </div>
+        <div class="tier lift">
+          <h3>Fixed or personalized</h3>
+          <p>Every code plays the same thing, or each buyer sets their own question in-store first. Your logo and colour on the play screen either way.</p>
+        </div>
+        <div class="tier lift">
+          <h3>See every scan</h3>
+          <p>A dashboard shows codes issued, scanned, played, and answered, so you know the add-on is landing.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-tight">
+      <div style="text-align: center; max-width: 560px; margin: 0 auto;">
+        <h2 style="font-size: 24px;">Request access</h2>
+        <p>Tell us a bit about what you sell. We set companies up by hand for now and send you a dashboard link.</p>
+      </div>
+
+      <div class="form-card" style="margin-top: 20px;">
+        <form method="POST" action="/api/company-requests">
+          <label for="companyName">Company name</label>
+          <input type="text" id="companyName" name="companyName" placeholder="e.g. Bloom &amp; Stem" required />
+
+          <label for="contactName">Your name</label>
+          <input type="text" id="contactName" name="contactName" placeholder="Who we'll be talking to" required />
+
+          <label for="contactEmail">Your email</label>
+          <input type="email" id="contactEmail" name="contactEmail" placeholder="you@company.com" required />
+
+          <label for="sells">What do you sell, and what would the code go on?</label>
+          <input type="text" id="sells" name="sells" placeholder="e.g. flower bouquets, tucked in with the wrapping" />
+
+          <label for="volume">Rough volume a month</label>
+          <input type="text" id="volume" name="volume" placeholder="e.g. 200 orders, maybe 30 would add this" />
+
+          <label for="message">Anything else</label>
+          <textarea id="message" name="message" placeholder="Occasions you're thinking of, timing, questions."></textarea>
+
+          <button type="submit" class="btn btn-primary">Request access</button>
+        </form>
+      </div>
+    </section>
+
+    <%- include('layout-partials/footer') %>
+  </div>
+
+  <script src="/js/reveal.js"></script>
+  <script src="/js/games/shared.js"></script>
+  <script src="/js/emoji-field.js"></script>
+</body>
+</html>
