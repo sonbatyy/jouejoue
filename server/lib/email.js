@@ -346,10 +346,12 @@ function sendGameInvite({ recipientEmail, recipientName, senderName, note, templ
 
 // Sent to the subscriber after every cycle's delivery (server/routes/
 // subscriptions.js, both the signup route and the manual "get this month's
-// game" route) — one email per month, whichever tier it is. The recipient
-// (for the 'random' tier) gets their own separate sendGameInvite email; this
-// one is the subscriber's own receipt + a link to manage the plan.
-function sendSubscriptionReceipt({ subscriberEmail, tierName, monthLabel, priceDisplay, detail, manageUrl, receiptNumber, date }) {
+// game" route) — one email per month, whichever tier it is. The subscriber
+// gets the link themselves now (not an auto-email straight to the
+// recipient) so they can decide whether/when to send it on, same choice as
+// the regular buy flow's "I'll send it myself" option — and a one-click
+// cancel link, not just a link to a page with a cancel button on it.
+function sendSubscriptionReceipt({ subscriberEmail, tierName, monthLabel, priceDisplay, detail, recipientName, templateName, shareUrl, manageUrl, cancelUrl, receiptNumber, date }) {
   const mode = process.env.EMAIL_MODE || "console";
   const subject = `Receipt ${receiptNumber}: ${tierName} — ${monthLabel}`;
 
@@ -360,15 +362,21 @@ function sendSubscriptionReceipt({ subscriberEmail, tierName, monthLabel, priceD
       html: emailShell({
         kicker: "JoueJoue · Subscription",
         bodyHtml: `
-          <h1 style="font-size: 22px; margin: 0 0 16px;">${escapeHtml(monthLabel)} is on its way.</h1>
+          <h1 style="font-size: 22px; margin: 0 0 16px;">${escapeHtml(monthLabel)}${templateName ? `: ${escapeHtml(templateName)}` : ""} for ${escapeHtml(recipientName)}.</h1>
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
             ${receiptHeaderRows(receiptNumber, date)}
             ${receiptSummaryRow(tierName, priceDisplay)}
             ${receiptSummaryRow("This month", detail)}
           </table>
-          <p style="margin: 0 0 6px; color: #6f6258; font-size: 14px;">Manage or cancel anytime:</p>
-          <p style="margin: 0 0 20px; font-size: 15px; word-break: break-all;"><a href="${escapeHtml(manageUrl)}" style="color: #cf5d3b;">${escapeHtml(manageUrl)}</a></p>
-          <p style="color: #a89a8d; font-size: 12px; margin: 0;">Paid via mock checkout — this is a prototype, no card processor is connected and nothing auto-charges. Come back to the link above once a month has passed to pull the next one.</p>
+          ${shareUrl ? `
+            <p style="margin: 0 0 6px; color: #6f6258; font-size: 14px;">Their link — send it whenever you're ready:</p>
+            <p style="margin: 0 0 20px; font-size: 15px; word-break: break-all;"><a href="${escapeHtml(shareUrl)}" style="color: #cf5d3b;">${escapeHtml(shareUrl)}</a></p>
+          ` : ""}
+          <p style="color: #a89a8d; font-size: 12px; margin: 0 0 20px;">Paid via mock checkout — this is a prototype, no card processor is connected and nothing auto-charges. Come back to your subscription page once a month has passed to pull the next one.</p>
+          <table style="width: 100%; border-collapse: collapse;"><tr>
+            <td style="padding-right: 6px;"><a href="${escapeHtml(manageUrl)}" style="display: block; text-align: center; background: #fbf1e6; color: #332a22; font-weight: 700; text-decoration: none; padding: 11px 16px; border-radius: 10px; font-size: 14px;">Manage plan</a></td>
+            <td style="padding-left: 6px;"><a href="${escapeHtml(cancelUrl)}" style="display: block; text-align: center; background: #fff; border: 2px solid #ecdfc9; color: #6f6258; font-weight: 700; text-decoration: none; padding: 9px 16px; border-radius: 10px; font-size: 14px;">Cancel subscription</a></td>
+          </tr></table>
           ${viewReceiptLink(receiptNumber)}
         `,
       }),
@@ -376,7 +384,7 @@ function sendSubscriptionReceipt({ subscriberEmail, tierName, monthLabel, priceD
     return;
   }
 
-  logStub("subscription receipt", [["To", subscriberEmail], ["Order #", receiptNumber], ["Tier", tierName], ["Month", monthLabel], ["Price", priceDisplay], ["Detail", detail], ["Manage", manageUrl]]);
+  logStub("subscription receipt", [["To", subscriberEmail], ["Order #", receiptNumber], ["Tier", tierName], ["Month", monthLabel], ["Price", priceDisplay], ["Detail", detail], ["Link", shareUrl || "n/a"], ["Manage", manageUrl], ["Cancel", cancelUrl]]);
 }
 
 module.exports = { sendAnswerNotification, sendContactNotification, sendPurchaseReceipt, sendRenewalReceipt, sendCustomRequestReceipt, sendGameInvite, sendSubscriptionReceipt };

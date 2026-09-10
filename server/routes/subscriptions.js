@@ -4,7 +4,7 @@ const { generatePersonalizedToken } = require("../lib/tokens");
 const { computeExpiry } = require("../lib/expiry");
 const { resolveCurrency, withLocalizedPrice, localizedPrice } = require("../lib/pricing");
 const { SUBSCRIPTION_TIERS, getTier, generateManageToken, isDeliveryDue, nextDeliveryAt } = require("../lib/subscriptions");
-const { sendSubscriptionReceipt, sendGameInvite } = require("../lib/email");
+const { sendSubscriptionReceipt } = require("../lib/email");
 const { recordReceipt } = require("../lib/receipts");
 
 const router = express.Router();
@@ -17,6 +17,10 @@ function loadSubscription(manageToken) {
 
 function manageUrl(req, manageToken) {
   return `${req.protocol}://${req.get("host")}/subscription/${manageToken}`;
+}
+
+function cancelUrl(req, manageToken) {
+  return `${req.protocol}://${req.get("host")}/subscription/${manageToken}/cancel`;
 }
 
 // Picks a template every random-tier delivery gets — any bank game, never
@@ -36,15 +40,22 @@ async function deliverCycle(req, subscription) {
   const tier = getTier(subscription.tier);
   const priceDisplay = localizedPrice(tier, currency);
   let detail;
+  let shareUrl = null;
+  let templateNameForEmail = null;
 
   if (subscription.tier === "random") {
     const template = pickRandomTemplate();
     const isTaken = (candidate) => !!db.prepare("SELECT 1 FROM game_instances WHERE token = ?").get(candidate);
     const token = generatePersonalizedToken(subscription.recipient_name, isTaken);
     const now = Date.now();
+    // delivery_method 'link', not 'email': the game itself no longer gets
+    // auto-emailed straight to the recipient every cycle — the subscriber
+    // gets this month's link in their own email instead and decides
+    // whether/when to send it on, same choice as the regular buy flow's
+    // "I'll send it myself" option.
     db.prepare(`
       INSERT INTO game_instances (template_id, token, buyer_email, recipient_name, question, status, created_at, expires_at, sender_name, note, delivery_method, recipient_email, level)
-      VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, 'email', ?, 'medium')
+      VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, 'link', NULL, 'medium')
     `).run(
       template.id,
       token,
@@ -54,19 +65,11 @@ async function deliverCycle(req, subscription) {
       now,
       computeExpiry(now),
       subscription.subscriber_name,
-      "",
-      subscription.recipient_email
+      ""
     );
-    const shareUrl = `${req.protocol}://${req.get("host")}/play/${token}`;
-    sendGameInvite({
-      recipientEmail: subscription.recipient_email,
-      recipientName: subscription.recipient_name,
-      senderName: subscription.subscriber_name,
-      note: "",
-      templateName: template.name,
-      shareUrl,
-    });
-    detail = `Sent to ${subscription.recipient_name}: ${template.name}`;
+    shareUrl = `${req.protocol}://${req.get("host")}/play/${token}`;
+    templateNameForEmail = template.name;
+    detail = `This month: ${template.name}`;
   } else {
     db.prepare(
       "INSERT INTO custom_game_requests (buyer_email, game_idea, purpose, created_at) VALUES (?, ?, ?, ?)"
@@ -90,7 +93,11 @@ async function deliverCycle(req, subscription) {
     monthLabel,
     priceDisplay,
     detail,
+    recipientName: subscription.recipient_name,
+    templateName: templateNameForEmail,
+    shareUrl,
     manageUrl: manageUrl(req, subscription.manage_token),
+    cancelUrl: cancelUrl(req, subscription.manage_token),
     receiptNumber,
     date: new Date(createdAt).toLocaleDateString(),
   });
@@ -180,11 +187,16 @@ router.post("/subscription/:manageToken/deliver", async (req, res) => {
   res.redirect(`/subscription/${subscription.manage_token}`);
 });
 
-router.post("/subscription/:manageToken/cancel", (req, res) => {
+function handleCancel(req, res) {
   const subscription = loadSubscription(req.params.manageToken);
   if (!subscription) return res.status(404).render("expired", { message: "That subscription doesn't exist." });
   db.prepare("UPDATE subscriptions SET status = 'cancelled' WHERE id = ?").run(subscription.id);
   res.redirect(`/subscription/${subscription.manage_token}`);
-});
+}
+// POST from the manage page's own form, GET so the "Cancel subscription"
+// link inside every delivery email — a plain <a href>, which can only ever
+// be a GET request — works as one click with no page visit required first.
+router.post("/subscription/:manageToken/cancel", handleCancel);
+router.get("/subscription/:manageToken/cancel", handleCancel);
 
 module.exports = router;
