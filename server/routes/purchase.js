@@ -57,6 +57,7 @@ router.post("/api/instances", async (req, res) => {
   const note = String(req.body.note || "").trim();
   const deliveryMethod = req.body.deliveryMethod === "email" ? "email" : "link";
   const recipientEmail = String(req.body.recipientEmail || "").trim();
+  const level = ["easy", "medium", "hard"].includes(req.body.level) ? req.body.level : "medium";
 
   const template = db
     .prepare("SELECT * FROM game_templates WHERE id = ? AND is_custom_tier = 0")
@@ -77,8 +78,8 @@ router.post("/api/instances", async (req, res) => {
   const token = generatePersonalizedToken(recipientName, isTaken);
   const now = Date.now();
   db.prepare(`
-    INSERT INTO game_instances (template_id, token, buyer_email, recipient_name, question, status, created_at, expires_at, sender_name, note, delivery_method, recipient_email)
-    VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?)
+    INSERT INTO game_instances (template_id, token, buyer_email, recipient_name, question, status, created_at, expires_at, sender_name, note, delivery_method, recipient_email, level)
+    VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?)
   `).run(
     template.id,
     token,
@@ -90,7 +91,8 @@ router.post("/api/instances", async (req, res) => {
     senderName,
     note,
     deliveryMethod,
-    deliveryMethod === "email" ? recipientEmail : null
+    deliveryMethod === "email" ? recipientEmail : null,
+    level
   );
 
   const shareUrl = `${req.protocol}://${req.get("host")}/play/${token}`;

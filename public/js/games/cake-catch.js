@@ -1,9 +1,15 @@
 // Single cake that jumps around the screen; drag it into the mouse's mouth
 // to win. No decoys, no wrong guess, so there's no "game over" state.
-// Speed is intentionally slow right now: this is a prototype and we're
-// still testing the win flow end to end, not tuning difficulty yet.
-function initCakeCatch({ containerEl, onWin }) {
+// Difficulty is just how often it dodges — the only real knob a "drag it
+// somewhere" game has.
+const CAKE_CATCH_LEVELS = {
+  easy: { moveIntervalMs: 1800 },
+  medium: { moveIntervalMs: 1200 },
+  hard: { moveIntervalMs: 700 },
+};
+function initCakeCatch({ containerEl, onWin, level }) {
   const { randomPosition, placeAt, getPointer } = window.GameLib;
+  const { moveIntervalMs } = CAKE_CATCH_LEVELS[level] || CAKE_CATCH_LEVELS.medium;
 
   const cake = containerEl.querySelector(".critter.cake");
   const mouth = containerEl.querySelector("#play-mouth");
@@ -28,7 +34,7 @@ function initCakeCatch({ containerEl, onWin }) {
     placeAt(cake, x, y);
 
     clearInterval(moveTimer);
-    moveTimer = setInterval(runAway, 1200);
+    moveTimer = setInterval(runAway, moveIntervalMs);
   }
 
   function onGrabStart(e) {

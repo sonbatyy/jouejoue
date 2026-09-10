@@ -9,11 +9,17 @@
 // as asked for. Falling is driven by a CSS transition (not
 // requestAnimationFrame), so it keeps animating correctly even in
 // contexts where rAF gets throttled.
-function initCooking({ containerEl, onWin, onLose }) {
+const COOKING_LEVELS = {
+  easy: { fallDurationMs: 5000, spawnIntervalMs: 1300, targetChance: 0.5 },
+  medium: { fallDurationMs: 4000, spawnIntervalMs: 1100, targetChance: 0.35 },
+  hard: { fallDurationMs: 3000, spawnIntervalMs: 900, targetChance: 0.25 },
+};
+function initCooking({ containerEl, onWin, onLose, level }) {
+  const { fallDurationMs, spawnIntervalMs, targetChance } = COOKING_LEVELS[level] || COOKING_LEVELS.medium;
   const ITEMS = ["🍎", "🍌", "🍇", "🍊", "🍓", "🥕", "🥦", "🍆"];
-  const FALL_DURATION_MS = 4000; // slow on purpose, still a prototype
-  const SPAWN_INTERVAL_MS = 1100;
-  const TARGET_CHANCE = 0.35; // how often a spawn is the real target vs a decoy
+  const FALL_DURATION_MS = fallDurationMs;
+  const SPAWN_INTERVAL_MS = spawnIntervalMs;
+  const TARGET_CHANCE = targetChance; // how often a spawn is the real target vs a decoy
 
   const wrapper = document.createElement("div");
   containerEl.appendChild(wrapper);

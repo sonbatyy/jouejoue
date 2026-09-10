@@ -52,6 +52,7 @@ router.get("/play/:token", async (req, res) => {
       recipientName: instance.recipient_name,
       senderName: instance.sender_name || "",
       note: instance.note || "",
+      level: instance.level || "medium",
     },
   });
 });

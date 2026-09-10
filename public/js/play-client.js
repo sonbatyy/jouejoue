@@ -1,5 +1,5 @@
 (function () {
-  const { token, templateSlug, question, recipientName, senderName } = window.__PLAY__;
+  const { token, templateSlug, question, recipientName, senderName, level } = window.__PLAY__;
   const containerEl = document.querySelector(".play-shell");
 
   function submitAnswer(answer, { onSuccess, onError }) {
@@ -35,7 +35,7 @@
   function startGame() {
     const init = GAME_REGISTRY[templateSlug];
     if (init) {
-      init({ containerEl, onWin });
+      init({ containerEl, onWin, level });
     } else {
       containerEl.innerHTML = '<p style="padding: 40px; text-align: center;">This game type isn\'t supported yet.</p>';
     }

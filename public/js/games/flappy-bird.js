@@ -4,15 +4,23 @@
 // switcher as siblings; wiping the container's innerHTML was deleting
 // both. The wrapper has no positioning of its own, so absolutely-positioned
 // children inside it still resolve against .play-shell exactly as before.
-function initFlappyBird({ containerEl, onWin, onLose }) {
-  // Tuned against a headless simulation (aim-for-the-gap bot): 30/30 win
-  // rate at this pace — pipes move fast and are spaced well apart (~400px
-  // between them), but the gap itself is still a real, reachable target.
-  const WIN_SCORE = 20;
+// "medium" is the original pace, tuned against a headless simulation
+// (aim-for-the-gap bot) to a 30/30 win rate: pipes move fast and are spaced
+// well apart (~400px), but the gap itself is still a real, reachable
+// target. easy/hard scale the win score, pipe gap, and pipe speed off that
+// same baseline rather than being separately tuned from scratch.
+const FLAPPY_LEVELS = {
+  easy: { winScore: 15, pipeGap: 460, pipeSpeed: 180 },
+  medium: { winScore: 20, pipeGap: 380, pipeSpeed: 220 },
+  hard: { winScore: 25, pipeGap: 310, pipeSpeed: 260 },
+};
+function initFlappyBird({ containerEl, onWin, onLose, level }) {
+  const { winScore, pipeGap, pipeSpeed } = FLAPPY_LEVELS[level] || FLAPPY_LEVELS.medium;
+  const WIN_SCORE = winScore;
   const GRAVITY = 900; // px/s^2
   const FLAP_VELOCITY = -330; // px/s, upward
-  const PIPE_SPEED = 220; // px/s
-  const PIPE_GAP = 380; // px
+  const PIPE_SPEED = pipeSpeed; // px/s
+  const PIPE_GAP = pipeGap; // px
   const PIPE_WIDTH = 70; // px
   const PIPE_INTERVAL_MS = 1800;
   const BIRD_SIZE = 50;

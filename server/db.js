@@ -30,6 +30,9 @@ if (!instanceColumns.includes("delivery_method")) {
 if (!instanceColumns.includes("recipient_email")) {
   db.exec("ALTER TABLE game_instances ADD COLUMN recipient_email TEXT");
 }
+if (!instanceColumns.includes("level")) {
+  db.exec("ALTER TABLE game_instances ADD COLUMN level TEXT NOT NULL DEFAULT 'medium'");
+}
 
 const customRequestColumns = db.prepare("PRAGMA table_info(custom_game_requests)").all().map((c) => c.name);
 if (!customRequestColumns.includes("template_id")) {

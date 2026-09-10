@@ -934,7 +934,8 @@ label {
 label:first-of-type { margin-top: 0; }
 input[type="text"],
 input[type="email"],
-textarea {
+textarea,
+select {
   width: 100%;
   padding: 11px 13px;
   font-size: 15px;
@@ -942,8 +943,10 @@ textarea {
   border-radius: 10px;
   outline: none;
   font-family: inherit;
+  background: var(--color-surface);
+  color: var(--color-ink);
 }
-input:focus, textarea:focus {
+input:focus, textarea:focus, select:focus {
   border-color: var(--color-accent);
 }
 input:invalid:not(:placeholder-shown) {

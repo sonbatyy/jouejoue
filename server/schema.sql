@@ -25,7 +25,8 @@ CREATE TABLE IF NOT EXISTS game_instances (
   sender_name     TEXT NOT NULL DEFAULT '',   -- who it's from, shown to the recipient
   note            TEXT NOT NULL DEFAULT '',   -- optional personal message, separate from the game question
   delivery_method TEXT NOT NULL DEFAULT 'link',  -- 'link' (buyer sends it themselves) | 'email' (we email the recipient directly)
-  recipient_email TEXT                        -- only set when delivery_method = 'email'
+  recipient_email TEXT,                       -- only set when delivery_method = 'email'
+  level           TEXT NOT NULL DEFAULT 'medium'  -- 'easy' | 'medium' | 'hard' — chosen by the buyer, read by the game itself
 );
 CREATE INDEX IF NOT EXISTS idx_game_instances_token ON game_instances(token);
 

@@ -1,7 +1,13 @@
 // Ported from juju-cake-game's duck minigame: one fast duck, click/tap
 // directly catches it (no drag needed) and calls onWin().
-function initDuckCatch({ containerEl, onWin }) {
+const DUCK_CATCH_LEVELS = {
+  easy: { moveIntervalMs: 1800 },
+  medium: { moveIntervalMs: 1200 },
+  hard: { moveIntervalMs: 700 },
+};
+function initDuckCatch({ containerEl, onWin, level }) {
   const { randomPosition, placeAt } = window.GameLib;
+  const { moveIntervalMs } = DUCK_CATCH_LEVELS[level] || DUCK_CATCH_LEVELS.medium;
   const duck = containerEl.querySelector(".critter.duck");
 
   let caught = false;
@@ -19,7 +25,7 @@ function initDuckCatch({ containerEl, onWin }) {
     const { x, y } = randomPosition(containerEl, duck);
     placeAt(duck, x, y);
     clearInterval(moveTimer);
-    moveTimer = setInterval(runAway, 1200);
+    moveTimer = setInterval(runAway, moveIntervalMs);
   }
 
   function catchDuck() {
