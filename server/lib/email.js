@@ -91,7 +91,13 @@ function viewReceiptLink(receiptNumber) {
 function htmlToPlainText(html) {
   return html
     .replace(/<style[\s\S]*?<\/style>/gi, "")
-    .replace(/<a[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, "$2 ($1)")
+    // Skip the "text (url)" form when the link text already IS the url
+    // (several emails link the share URL using itself as the label) —
+    // printing it twice back to back reads as a spam-formatting artifact.
+    .replace(/<a[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, (match, href, text) => {
+      const plainText = text.replace(/<[^>]+>/g, "").trim();
+      return plainText === href.trim() ? href : `${plainText} (${href})`;
+    })
     .replace(/<\/(p|h1|h2|h3|tr|div)>/gi, "\n")
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<td[^>]*>/gi, "  ")
